@@ -26,3 +26,11 @@ Patrulla: se mueve en una ruta o rebota.
 Estático-interactivo: “cura”, “da pista” o “abre puerta” al colisionar/pulsar.
 
 Con esto cumples “interactuar” sin meterte en diálogos complejos.
+
+Kenney tiene miles de assets gratuitos y muchos packs son CC0 (puedes usar sin atribución obligatoria).
+
+itch.io tiene listados de assets CC0 para top-down y tilesets (filtro por licencia).
+
+OpenGameArt también sirve, pero hay varias licencias; su FAQ explica CC0/CC-BY, etc.
+
+Para sonido: Freesound tiene CC0/CC-BY; CC0 es lo más simple (sin atribución obligatoria).
