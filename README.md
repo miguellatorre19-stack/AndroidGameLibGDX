@@ -1,36 +1,38 @@
-# AndroidGameLibGDX
+# AwesomeGame
 
-Opción recomendada: “Top-Down Scroller por salas + objetivo claro”
+A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
 
-Concepto: el jugador avanza por pantallas/salas (2 niveles = 2 mapas o 2 conjuntos de salas).
-Movimiento 4 direcciones. Objetivo: llegar a la salida o recoger X llaves. NPCs: enemigos simples o personajes que “te bloquean / te persiguen / te curan”.
+This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
 
-Por qué es la más fácil
+## Platforms
 
-Te permite diseñar niveles pequeños (sin mundo enorme).
+- `core`: Main module with the application logic shared by all platforms.
+- `lwjgl3`: Primary desktop platform using LWJGL3; was called 'desktop' in older docs.
+- `android`: Android mobile platform. Needs Android SDK.
+- `lwjgl2`: Legacy desktop platform using LWJGL2.
 
-Colisiones simples (paredes + NPCs + objetos).
+## Gradle
 
-HUD fácil (vida, llaves, nivel).
+This project uses [Gradle](https://gradle.org/) to manage dependencies.
+The Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands.
+Useful Gradle tasks and flags:
 
-Menús y opciones claras (volumen y dificultad/velocidad).
+- `--continue`: when using this flag, errors will not stop the tasks from running.
+- `--daemon`: thanks to this flag, Gradle daemon will be used to run chosen tasks.
+- `--offline`: when using this flag, cached dependency archives will be used.
+- `--refresh-dependencies`: this flag forces validation of all dependencies. Useful for snapshot versions.
+- `android:lint`: performs Android project validation.
+- `build`: builds sources and archives of every project.
+- `cleanEclipse`: removes Eclipse project data.
+- `cleanIdea`: removes IntelliJ project data.
+- `clean`: removes `build` folders, which store compiled classes and built archives.
+- `eclipse`: generates Eclipse project data.
+- `idea`: generates IntelliJ project data.
+- `lwjgl2:jar`: builds application's runnable jar, which can be found at `lwjgl2/build/libs`.
+- `lwjgl2:run`: starts the application.
+- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
+- `lwjgl3:run`: starts the application.
+- `test`: runs unit tests (if any).
 
-Animaciones: solo necesitas caminar/idle y quizá ataque.
-
-NPCs (mínimo 3 distintos) fáciles
-
-Perseguidor: se acerca al jugador (IA muy básica).
-
-Patrulla: se mueve en una ruta o rebota.
-
-Estático-interactivo: “cura”, “da pista” o “abre puerta” al colisionar/pulsar.
-
-Con esto cumples “interactuar” sin meterte en diálogos complejos.
-
-Kenney tiene miles de assets gratuitos y muchos packs son CC0 (puedes usar sin atribución obligatoria).
-
-itch.io tiene listados de assets CC0 para top-down y tilesets (filtro por licencia).
-
-OpenGameArt también sirve, pero hay varias licencias; su FAQ explica CC0/CC-BY, etc.
-
-Para sonido: Freesound tiene CC0/CC-BY; CC0 es lo más simple (sin atribución obligatoria).
+Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
+For example, `core:clean` removes `build` folder only from the `core` project.
