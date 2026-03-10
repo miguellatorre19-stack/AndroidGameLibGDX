@@ -3,7 +3,7 @@ package svalero.com.lwjgl2;
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import svalero.com.Main;
+import svalero.com.KeyFinder;
 
 /** Launches the desktop (LWJGL2) application. */
 public class Lwjgl2Launcher {
@@ -12,7 +12,7 @@ public class Lwjgl2Launcher {
     }
 
     private static LwjglApplication createApplication() {
-        return new LwjglApplication(new Main(), getDefaultConfiguration());
+        return new LwjglApplication(new KeyFinder(), getDefaultConfiguration());
     }
 
     private static LwjglApplicationConfiguration getDefaultConfiguration() {

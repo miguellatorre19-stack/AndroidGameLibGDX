@@ -9,10 +9,10 @@ import svalero.com.Main;
 /** Launches the Android application. */
 public class AndroidLauncher extends AndroidApplication {
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {//main entry-point method is the Activity’s
         super.onCreate(savedInstanceState);
         AndroidApplicationConfiguration configuration = new AndroidApplicationConfiguration();
         configuration.useImmersiveMode = true; // Recommended, but not required.
-        initialize(new Main(), configuration);
+        initialize(new KeyFinder, configuration);//passes the ApplicationListener and the AndroidApplicationConfiguration
     }
 }
