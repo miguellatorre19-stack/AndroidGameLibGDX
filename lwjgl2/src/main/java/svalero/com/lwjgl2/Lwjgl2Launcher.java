@@ -7,9 +7,7 @@ import svalero.com.KeyFinder;
 
 /** Launches the desktop (LWJGL2) application. */
 public class Lwjgl2Launcher {
-    public static void main(String[] args) {
-        createApplication();
-    }
+    public static void main(String[] args) {createApplication();}
 
     private static LwjglApplication createApplication() {
         return new LwjglApplication(new KeyFinder(), getDefaultConfiguration());

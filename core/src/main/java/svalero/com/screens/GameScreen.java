@@ -8,6 +8,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
@@ -24,6 +25,7 @@ public class GameScreen implements Screen {
     private Sprite pjSprite;
     private Texture dungeonSheet;
     private TextureRegion pjRegion;
+    public SpriteBatch batch;
 
     private Sound sound;
     private Music music;
@@ -78,18 +80,18 @@ public class GameScreen implements Screen {
         ScreenUtils.clear(Color.BLACK);
         // clears the screen. It’s a good practice to clear the screen every frame.
         // Otherwise, you’ll get weird graphical errors. You can use any color you want, but we’ll just settle on Black this time.
-        game.batch.setProjectionMatrix(game.viewport.getCamera().combined);
+        batch.setProjectionMatrix(game.viewport.getCamera().combined);
         //shows how the Viewport is applied to the SpriteBatch. This is necessary for the images to be shown in the correct place.
-        game.batch.begin();
+        batch.begin();
 
         float worldWidth = game.viewport.getWorldWidth() * 1.5f;
         float worldHeight = game.viewport.getWorldHeight() * 2;
 
         //coordinates 0,0 are at the bottom-left
-        game.batch.draw(dungeonSheet, 0 ,0, worldWidth, worldHeight );
-        pjSprite.draw(game.batch);
+        batch.draw(dungeonSheet, 0 ,0, worldWidth, worldHeight );
+        pjSprite.draw(batch);
 
-        game.batch.end();
+        batch.end();
     }
 
     private void logic() {
