@@ -1,5 +1,6 @@
 package svalero.com.screens;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -16,10 +17,13 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import svalero.com.KeyFinder;
+import svalero.com.managers.LevelManager;
 
 public class GameScreen implements Screen {
 
     final KeyFinder game;
+
+    private LevelManager levelManager;
 
     private Texture pjTexture;
     private Sprite pjSprite;
@@ -62,18 +66,27 @@ public class GameScreen implements Screen {
 
     }
 
+    // Este método se ejecuta en el momento en que se cambia a esta Screen
+    //   * Si esta Screen carga un menú es el momento de crearlo
+    //   * Si es una pantalla de juego, es el momento de inicializar lo que no
+    //   * se ha inicializado en el constructor
     @Override
     public void show() {
-        // start the playback of the background music
-        // when the screen is shown
+        // start the playback of the background music, when the screen is shown
+
+
     }
 
+
+    //Invocado como un bucle principal de la Screen para renderizar lo que ocurre en partida o mostrar el menu
     @Override
     public void render(float delta) {
         draw();
         logic();
         input();
     }
+
+
 
     private void draw() {
         game.viewport.apply();
@@ -141,6 +154,7 @@ public class GameScreen implements Screen {
         game.viewport.update(width, height, true);
     }
 
+    //
     @Override
     public void pause() {
 
@@ -156,6 +170,7 @@ public class GameScreen implements Screen {
 
     }
 
+    //Invocado cuando esta Screen ya no es la actual
     @Override
     public void dispose() {
         pjTexture.dispose();

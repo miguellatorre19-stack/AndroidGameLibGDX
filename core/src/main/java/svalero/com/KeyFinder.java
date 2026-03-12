@@ -4,10 +4,9 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import svalero.com.managers.ResourceManager;
-import svalero.com.screens.MainMenuScreen;
+import svalero.com.screens.GameScreen;
+import svalero.com.screens.SplashScreen;
 
 public class KeyFinder extends Game {
 
@@ -19,6 +18,8 @@ public class KeyFinder extends Game {
     // create() method defines all assets and allocates the memory to them
     @Override
     public void create(){
+        ((Game) Gdx.app.getApplicationListener()).setScreen(new SplashScreen());
+
         font = new BitmapFont();
         viewport = new FitViewport(8 ,5);
 
@@ -26,13 +27,12 @@ public class KeyFinder extends Game {
         font.getData().setScale(viewport.getWorldHeight() / Gdx.graphics.getHeight());
         //font has 15pt, but we need to scale it to our viewport by ratio of viewport height to screen height
 
-        this.setScreen(new MainMenuScreen(this));
 
     }
 
     @Override
     public void render (){
-        if(manager.update())
+        manager.update();
         super.render();
     }
 
