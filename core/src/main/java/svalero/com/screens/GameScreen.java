@@ -76,7 +76,6 @@ public class GameScreen implements Screen {
 
     }
 
-
     //Invocado como un bucle principal de la Screen para renderizar lo que ocurre en partida o mostrar el menu
     @Override
     public void render(float delta) {
@@ -84,8 +83,6 @@ public class GameScreen implements Screen {
         logic();
         input();
     }
-
-
 
     private void draw() {
         ScreenUtils.clear(Color.BLACK);

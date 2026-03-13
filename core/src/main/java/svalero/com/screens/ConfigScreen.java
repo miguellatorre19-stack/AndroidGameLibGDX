@@ -30,10 +30,6 @@ public class ConfigScreen implements Screen {
         this.game = game;
     }
 
-    public ConfigScreen() {
-        this(null);
-    }
-
     private void setFullScreenWindow(){
         Graphics.DisplayMode mode = Gdx.graphics.getDisplayMode();
         Gdx.graphics.setFullscreenMode(mode);
@@ -93,14 +89,6 @@ public class ConfigScreen implements Screen {
             }
         });
 
-        VisTextButton quitButton = new VisTextButton("QUIT");
-        quitButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                Gdx.app.exit();
-            }
-        });
-
         VisCheckBox fullScreenButton = new VisCheckBox("Full Screen");
         fullScreenButton.setChecked(Gdx.graphics.isFullscreen());
 
@@ -145,13 +133,11 @@ public class ConfigScreen implements Screen {
             }
         });
 
-        VisLabel resolutionLabel = new VisLabel("Resolution");
+        VisLabel resolutionLabel = new VisLabel("ML");
 
 
         table.row();
         table.add(resumeButton).center().width(200).height(100).pad(5);
-        table.row();
-        table.add(quitButton).center().width(200).height(100).pad(5);
         table.row();
         table.add(fullScreenButton).left().width(100).height(50).pad(10);
         table.add(displayDataButton).right().width(100).height(50).pad(10);
@@ -217,5 +203,6 @@ public class ConfigScreen implements Screen {
             stage.dispose();
             stage = null;
         }
+        VisUI.dispose();
     }
 }

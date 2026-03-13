@@ -16,15 +16,16 @@ import java.awt.*;
 
 public class SplashScreen implements Screen {
 
+    private KeyFinder game;
     private Texture splashTexture;
     private Image splashImage;
     private Stage stage;
     private boolean splashDone = false;
-    private KeyFinder game;
 
-    public SplashScreen(){
+    public SplashScreen(KeyFinder game){
         splashTexture = new Texture(Gdx.files.internal("ui/key_splash_logo.png"));
         splashImage = new Image(splashTexture);
+        this.game = game;
     }
 
     @Override
@@ -60,7 +61,7 @@ public class SplashScreen implements Screen {
         if (ResourceManager.update()) {
             // Si la animación ha terminado se muestra ya el menú principal
             if (splashDone) {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new ConfigScreen());
+                game.setScreen(new MainMenuScreen(game));
             }
         }
     }
