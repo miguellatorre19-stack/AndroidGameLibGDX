@@ -9,7 +9,6 @@ buildscript {
   dependencies {
     classpath "com.android.tools.build:gradle:8.9.3"
     classpath "io.freefair.gradle:lombok-plugin:9.2.0"
-
   }
 }
 

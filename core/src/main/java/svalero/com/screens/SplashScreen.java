@@ -60,14 +60,15 @@ public class SplashScreen implements Screen {
         if (ResourceManager.update()) {
             // Si la animación ha terminado se muestra ya el menú principal
             if (splashDone) {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenuScreen(game));
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new ConfigScreen());
             }
         }
     }
 
     @Override
     public void resize(int width, int height) {
-
+        // Redimensiona la escena al redimensionar la ventana del juego
+        stage.getViewport().update(width, height);
     }
 
     @Override

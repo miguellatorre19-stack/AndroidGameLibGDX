@@ -42,7 +42,6 @@ public class GameScreen implements Screen {
 
         //will ensure that no matter what size our window is, the full game view will always be visible.
         // The parameters determine how large our visible game world will be in game units.
-        game.viewport = new FitViewport(7 ,5 );
 
         pjTexture = new Texture("2D_Pixel_Dungeon_Asset_Pack/Character_animation/monsters_idle/vampire/v1/vampire_v1_1.png");
         dungeonSheet = new Texture("2D_Pixel_Dungeon_Asset_Pack/character_and_tileset/Dungeon_Tileset.png");
@@ -89,19 +88,14 @@ public class GameScreen implements Screen {
 
 
     private void draw() {
-        game.viewport.apply();
         ScreenUtils.clear(Color.BLACK);
         // clears the screen. It’s a good practice to clear the screen every frame.
         // Otherwise, you’ll get weird graphical errors. You can use any color you want, but we’ll just settle on Black this time.
-        batch.setProjectionMatrix(game.viewport.getCamera().combined);
         //shows how the Viewport is applied to the SpriteBatch. This is necessary for the images to be shown in the correct place.
         batch.begin();
 
-        float worldWidth = game.viewport.getWorldWidth() * 1.5f;
-        float worldHeight = game.viewport.getWorldHeight() * 2;
 
         //coordinates 0,0 are at the bottom-left
-        batch.draw(dungeonSheet, 0 ,0, worldWidth, worldHeight );
         pjSprite.draw(batch);
 
         batch.end();
@@ -109,16 +103,12 @@ public class GameScreen implements Screen {
 
     private void logic() {
         // Store the worldWidth and worldHeight as local variables for brevity
-        float worldWidth = game.viewport.getWorldWidth();
-        float worldHeight = game.viewport.getWorldHeight();
 
         // Store the pj size for brevity
         float pjSpriteWidth = pjSprite.getWidth();
         float pjSpriteHeight = pjSprite.getHeight();
 
         // Clamp x to values between 0 and worldWidth
-        pjSprite.setX(MathUtils.clamp(pjSprite.getX(), 0, worldWidth-pjSpriteWidth));
-        pjSprite.setY(MathUtils.clamp(pjSprite.getY(), 0, worldHeight-pjSpriteHeight));
     }
 
     private void input() {
@@ -144,14 +134,12 @@ public class GameScreen implements Screen {
         if (Gdx.input.isTouched()) { // If the user has clicked or tapped the screen
             // todo: React to the player touching the screen
             touchPos.set(Gdx.input.getX(), Gdx.input.getY()); // Get where the touch happened on screen
-            game.viewport.unproject(touchPos); // Convert the units to the world units of the viewport
             pjSprite.setCenterX(touchPos.x); // Change the horizontally centered position of the bucket
         }
     }
 
     @Override
     public void resize(int width, int height) {
-        game.viewport.update(width, height, true);
     }
 
     //

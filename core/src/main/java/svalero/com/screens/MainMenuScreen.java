@@ -25,20 +25,15 @@ public class MainMenuScreen implements Screen {
 
     }
 
-
-
-
     // we need to call game’s SpriteBatch and BitmapFont instances instead of creating our own.
     @Override
     public void render(float v) {
         ScreenUtils.clear((Color.BLACK));
 
-        game.viewport.apply();
 
 
         renderManager.batch.begin();
 
-        renderManager.batch.setProjectionMatrix((game.viewport.getCamera().combined));
 
         game.font.draw(renderManager.batch, "Welcome to KeyFinder!!! ", 1, 1.5f);
         game.font.draw(renderManager.batch, "Tap anywhere to begin!", 1, 1);
@@ -54,7 +49,6 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        game.viewport.update(width, height, true);
 
     }
 

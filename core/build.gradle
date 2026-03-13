@@ -6,6 +6,7 @@ dependencies {
   api "com.badlogicgames.gdx:gdx-ai:$aiVersion"
   api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
+  api "com.kotcrab.vis:vis-ui:$visuiVersion"
   api "com.github.MrStahlfelge.gdx-websockets:core:$websocketVersion"
   api "com.github.tommyettinger:anim8-gdx:$anim8Version"
   annotationProcessor "org.projectlombok:lombok:$lombokVersion"
