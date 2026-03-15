@@ -16,6 +16,7 @@ import com.kotcrab.vis.ui.widget.VisSelectBox;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 import svalero.com.KeyFinder;
+import svalero.com.managers.ResourceManager;
 import svalero.com.utils.Constants;
 
 public class ConfigScreen implements Screen {
@@ -28,10 +29,6 @@ public class ConfigScreen implements Screen {
 
     public ConfigScreen(KeyFinder game){
         this.game = game;
-    }
-
-    public ConfigScreen() {
-        this(null);
     }
 
     private void setFullScreenWindow(){
@@ -93,14 +90,6 @@ public class ConfigScreen implements Screen {
             }
         });
 
-        VisTextButton quitButton = new VisTextButton("QUIT");
-        quitButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                Gdx.app.exit();
-            }
-        });
-
         VisCheckBox fullScreenButton = new VisCheckBox("Full Screen");
         fullScreenButton.setChecked(Gdx.graphics.isFullscreen());
 
@@ -145,13 +134,11 @@ public class ConfigScreen implements Screen {
             }
         });
 
-        VisLabel resolutionLabel = new VisLabel("Resolution");
+        VisLabel resolutionLabel = new VisLabel("ML");
 
 
         table.row();
         table.add(resumeButton).center().width(200).height(100).pad(5);
-        table.row();
-        table.add(quitButton).center().width(200).height(100).pad(5);
         table.row();
         table.add(fullScreenButton).left().width(100).height(50).pad(10);
         table.add(displayDataButton).right().width(100).height(50).pad(10);
@@ -176,6 +163,7 @@ public class ConfigScreen implements Screen {
             buildUi();
         }
         Gdx.input.setInputProcessor(stage);
+        ResourceManager.loadAllResources();
 
     }
 
@@ -190,7 +178,7 @@ public class ConfigScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        stage.getViewport().update(width, height);
+        stage.getViewport().update(width, height, true);
     }
 
     @Override
@@ -217,5 +205,6 @@ public class ConfigScreen implements Screen {
             stage.dispose();
             stage = null;
         }
+        VisUI.dispose();
     }
 }

@@ -1,6 +1,7 @@
 package svalero.com.managers;
 
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -12,12 +13,14 @@ public class ResourceManager {
     public static AssetManager manager = new AssetManager();
     // the AssetManager needs to know how to load a specific type of asset. This functionality is implemented via AssetLoaders.
 
-
     TiledMap map = new TmxMapLoader().load("");
-
+    public static BitmapFont font;
 
     public static void loadAllResources(){
         manager.load("Texture_Atlas/Dungeon_tiles.atlas", TextureAtlas.class);
+        font = new BitmapFont();
+        font.setUseIntegerPositions(false);
+        //font has 15pt, but we need to scale it to our viewport by ratio of viewport height to screen height
     }
     //These calls will enqueue those assets for loading. We only queued assets to be loaded. The AssetManager does not yet load anything.
 
