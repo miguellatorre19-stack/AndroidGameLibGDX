@@ -12,13 +12,12 @@ import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 import svalero.com.KeyFinder;
 import svalero.com.managers.RenderManager;
+import svalero.com.managers.ResourceManager;
 
 public class MainMenuScreen implements Screen {
 
     private final KeyFinder game;
     private Stage stage;
-
-    public RenderManager renderManager;
 
     public MainMenuScreen(KeyFinder game) {
         this.game = game;
@@ -72,6 +71,7 @@ public class MainMenuScreen implements Screen {
 
         buildUI();
         Gdx.input.setInputProcessor(stage);
+        ResourceManager.loadAllResources();
 
     }
 
@@ -94,7 +94,7 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        stage.getViewport().update(width, height);
+        stage.getViewport().update(width, height, true);
 
     }
 

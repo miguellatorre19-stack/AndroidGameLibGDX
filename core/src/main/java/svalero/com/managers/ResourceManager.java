@@ -16,11 +16,9 @@ public class ResourceManager {
     TiledMap map = new TmxMapLoader().load("");
     public static BitmapFont font;
 
-
     public static void loadAllResources(){
         manager.load("Texture_Atlas/Dungeon_tiles.atlas", TextureAtlas.class);
-         font = new BitmapFont();
-
+        font = new BitmapFont();
         font.setUseIntegerPositions(false);
         //font has 15pt, but we need to scale it to our viewport by ratio of viewport height to screen height
     }

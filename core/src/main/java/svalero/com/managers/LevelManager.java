@@ -1,5 +1,6 @@
 package svalero.com.managers;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -17,6 +18,9 @@ public class LevelManager {
     private MapLayer colisionLayer;
     private MapLayer objectLayer;
     private MapRenderer mapRenderer;
+
+    private SpriteManager spriteManager;
+    SpriteBatch batch;
 
     int currentlevel;
 

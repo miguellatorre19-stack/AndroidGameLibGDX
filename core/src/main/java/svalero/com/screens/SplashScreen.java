@@ -1,6 +1,5 @@
 package svalero.com.screens;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Texture;
@@ -69,7 +68,7 @@ public class SplashScreen implements Screen {
     @Override
     public void resize(int width, int height) {
         // Redimensiona la escena al redimensionar la ventana del juego
-        stage.getViewport().update(width, height);
+        stage.getViewport().update(width, height, true);
     }
 
     @Override

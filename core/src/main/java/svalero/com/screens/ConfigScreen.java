@@ -16,6 +16,7 @@ import com.kotcrab.vis.ui.widget.VisSelectBox;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 import svalero.com.KeyFinder;
+import svalero.com.managers.ResourceManager;
 import svalero.com.utils.Constants;
 
 public class ConfigScreen implements Screen {
@@ -162,6 +163,7 @@ public class ConfigScreen implements Screen {
             buildUi();
         }
         Gdx.input.setInputProcessor(stage);
+        ResourceManager.loadAllResources();
 
     }
 
@@ -176,7 +178,7 @@ public class ConfigScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        stage.getViewport().update(width, height);
+        stage.getViewport().update(width, height, true);
     }
 
     @Override
