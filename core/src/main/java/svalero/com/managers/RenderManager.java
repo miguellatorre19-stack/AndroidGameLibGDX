@@ -19,11 +19,9 @@ public class RenderManager {
     }
 
     public void drawFrame(SpriteManager spriteManager){
-
         batch.begin();
         spriteManager.player.render(batch);
         batch.end();
-
     }
 
 }

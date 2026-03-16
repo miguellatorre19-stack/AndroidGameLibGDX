@@ -45,6 +45,7 @@ public class GameScreen implements Screen {
         // Minimal runtime setup: managers and player must exist before first render().
         renderManager = new RenderManager();
         spriteManager = new SpriteManager(game);
+        levelManager = new LevelManager();
         player = new Player(
             new Texture("characters/Character_animation/priests_idle/priest1/v1/priest1_v1_1.png"),
             new Vector2(100, 100),
@@ -65,6 +66,7 @@ public class GameScreen implements Screen {
         // clears the screen. It’s a good practice to clear the screen every frame.
         // Otherwise, you’ll get weird graphical errors. You can use any color you want, but we’ll just settle on Black this time.
         //shows how the Viewport is applied to the SpriteBatch. This is necessary for the images to be shown in the correct place.
+        levelManager.loadCurrentLevel();
         renderManager.drawFrame(spriteManager);
     }
 
