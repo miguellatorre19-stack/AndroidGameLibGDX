@@ -1,6 +1,5 @@
 package svalero.com.characters;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Intersector;
@@ -10,13 +9,16 @@ import lombok.Data;
 import svalero.com.managers.SpriteManager;
 import svalero.com.screens.MainMenuScreen;
 
+import static svalero.com.utils.Constants.PLAYER_RENDER_SCALE;
+
 @Data
 public class Player extends Character implements Disposable {
 
-    Texture playerTexture = new Texture(Gdx.files.internal("characters/Character_animation/priests_idle/priest1/v1/priest1_v1_1.png"));
+    Texture playerTexture;
 
     public Player(Texture playerTexture, Vector2 position, SpriteManager spriteManager) {
-        super(playerTexture, new Vector2(100,100), spriteManager);
+        super(playerTexture, position, spriteManager);
+        setRenderScale(PLAYER_RENDER_SCALE);
     }
 
     @Override

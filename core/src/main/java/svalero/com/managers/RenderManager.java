@@ -2,6 +2,7 @@ package svalero.com.managers;
 
 
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 //contiene el código que permite el renderizado (o pintado) de todos los elementos del juego en la pantalla.
@@ -18,7 +19,10 @@ public class RenderManager {
         batch = new SpriteBatch();
     }
 
-    public void drawFrame(SpriteManager spriteManager){
+    public void drawFrame(SpriteManager spriteManager, OrthographicCamera camera){
+        if (camera != null) {
+            batch.setProjectionMatrix(camera.combined);
+        }
         batch.begin();
         spriteManager.player.render(batch);
         batch.end();
