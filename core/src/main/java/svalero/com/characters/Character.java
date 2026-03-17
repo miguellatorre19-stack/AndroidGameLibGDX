@@ -22,17 +22,27 @@ public abstract class Character {
     protected boolean dead = false;
     protected Texture texture;
     protected SpriteManager spriteManager;
+    protected float renderWidth;
+    protected float renderHeight;
 
     public Character(Texture texture, Vector2 position, SpriteManager spriteManager){
-        this.game = game;
+        this.game = spriteManager.getGame();
         this.texture = texture;
         this.position = position;
         this.spriteManager = spriteManager;
-        rect = new Rectangle(position.x, position.y,  texture.getWidth(), texture.getHeight());
+        renderWidth = texture.getWidth();
+        renderHeight = texture.getHeight();
+        rect = new Rectangle(position.x, position.y, renderWidth, renderHeight);
     }
 
     public void render(Batch batch){
-        batch.draw(texture, position.x, position.y);
+        batch.draw(texture, position.x, position.y, renderWidth, renderHeight);
+    }
+
+    protected void setRenderScale(float scale){
+        renderWidth = texture.getWidth() * scale;
+        renderHeight = texture.getHeight() * scale;
+        rect.setSize(renderWidth * 0.8f, renderHeight * 0.8f);
     }
 
     public abstract void attack();
@@ -47,5 +57,3 @@ public abstract class Character {
 
 
 }
-
-

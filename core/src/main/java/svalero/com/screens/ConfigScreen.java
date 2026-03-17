@@ -24,7 +24,7 @@ public class ConfigScreen implements Screen {
     private final KeyFinder game;
     private Stage stage;
     private Preferences prefs;
-    private String[] resolutions = new String[]{"1920x1080","1280x720","720x756"};
+    private String[] resolutions = new String[]{"1920x1080","1280x720","720x576"};
     private String selectedResolution;
 
     public ConfigScreen(KeyFinder game){
@@ -135,7 +135,6 @@ public class ConfigScreen implements Screen {
         });
 
         VisLabel resolutionLabel = new VisLabel("ML");
-
 
         table.row();
         table.add(resumeButton).center().width(200).height(100).pad(5);
