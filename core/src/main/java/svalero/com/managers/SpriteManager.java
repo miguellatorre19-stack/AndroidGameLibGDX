@@ -62,7 +62,7 @@ public class SpriteManager  {
             player.getPosition().x += moveX;
             player.getRect().setPosition(player.getPosition().x, player.getPosition().y);
 
-            if (levelManager != null && levelManager.isBlocked(player.getRect())) {
+            if (levelManager != null && levelManager.isBlocked(player.getRect(), player.hasKey())) {
                 player.getPosition().x = oldX;
                 player.getRect().setPosition(player.getPosition().x, player.getPosition().y);
             }
@@ -74,7 +74,7 @@ public class SpriteManager  {
             player.getPosition().y += moveY;
             player.getRect().setPosition(player.getPosition().x, player.getPosition().y);
 
-            if (levelManager != null && levelManager.isBlocked(player.getRect())) {
+            if (levelManager != null && levelManager.isBlocked(player.getRect(), player.hasKey())) {
                 player.getPosition().y = oldY;
                 player.getRect().setPosition(player.getPosition().x, player.getPosition().y);
             }

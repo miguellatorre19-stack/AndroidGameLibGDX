@@ -9,17 +9,18 @@ import lombok.Data;
 import svalero.com.managers.SpriteManager;
 import svalero.com.screens.MainMenuScreen;
 
+import static com.badlogic.gdx.math.Interpolation.circle;
 import static svalero.com.utils.Constants.PLAYER_RENDER_SCALE;
 
 @Data
 public class Player extends Character implements Disposable {
 
     Texture playerTexture;
+    private boolean hasKey;
 
     public Player(Texture playerTexture, Vector2 position, SpriteManager spriteManager) {
         super(playerTexture, position, spriteManager);
         setRenderScale(PLAYER_RENDER_SCALE);
-
     }
 
     @Override
@@ -38,6 +39,21 @@ public class Player extends Character implements Disposable {
         dispose();
     }
 
+    public void interact(){
+    }
+
+    public boolean hasKey() {
+        return hasKey;
+    }
+
+    public void giveKey() {
+        hasKey = true;
+    }
+
+    public void removeKey() {
+        hasKey = false;
+    }
+
     @Override
     public void update() {
 
@@ -50,6 +66,7 @@ public class Player extends Character implements Disposable {
     @Override
     public void checkColisions(SpriteManager spriteManager) {
         if (Intersector.overlaps(rect, rect)){
+            affected();
         }
     }
 

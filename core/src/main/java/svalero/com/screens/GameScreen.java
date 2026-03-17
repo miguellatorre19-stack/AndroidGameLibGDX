@@ -52,7 +52,7 @@ public class GameScreen implements Screen {
         playerTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         player = new Player(
             playerTexture,
-            new Vector2(100, 100),
+            new Vector2(120, 50),
             spriteManager
         );
         spriteManager.setPlayer(player);

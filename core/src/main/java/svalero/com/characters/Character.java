@@ -42,7 +42,7 @@ public abstract class Character {
     protected void setRenderScale(float scale){
         renderWidth = texture.getWidth() * scale;
         renderHeight = texture.getHeight() * scale;
-        rect.setSize(renderWidth, renderHeight);
+        rect.setSize(renderWidth * 0.8f, renderHeight * 0.8f);
     }
 
     public abstract void attack();

@@ -9,18 +9,19 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.utils.Array;
 import svalero.com.KeyFinder;
-
-
 
 //se encarga de la carga de niveles (pantallas jugables) y de todos los elementos de los mismos(objetos, enemigos, mapa)
 public class LevelManager {
 
+    private static final String COLLISION_LAYER = "colisions";
+    private static final String COLLISION_LAYER_ALT = "collisions";
+    private static final String DOOR_TAG = "puertas";
+
     private TiledMap map;
     private OrthogonalTiledMapRenderer mapRenderer;
+    private MapLayer collisionLayer;
     private int currentlevel;
-    private final Array<Rectangle> wallColisions;
 
     public LevelManager(KeyFinder game){
         TmxMapLoader.Parameters parameters = new TmxMapLoader.Parameters();
@@ -29,9 +30,11 @@ public class LevelManager {
 
         map = new TmxMapLoader().load("levels/maps/first_level_tutorial.tmx", parameters);
         mapRenderer = new OrthogonalTiledMapRenderer(map);
+        collisionLayer = map.getLayers().get(COLLISION_LAYER);
+        if (collisionLayer == null) {
+            collisionLayer = map.getLayers().get(COLLISION_LAYER_ALT);
+        }
         currentlevel = 1;
-        wallColisions = new Array<>();
-        storeColisions();
     }
 
     public OrthogonalTiledMapRenderer getMapRenderer(){
@@ -59,23 +62,21 @@ public class LevelManager {
         }
     }
 
-    public void storeColisions(){
-        MapLayer colisionLayer =map.getLayers().get("colisions");
-
-        for (MapObject colisions :  colisionLayer.getObjects()){
-            if (colisions instanceof  RectangleMapObject rectangleMapObject){
-                Rectangle rectangle = new Rectangle(rectangleMapObject.getRectangle());
-                wallColisions.add(rectangle);
-            }
-        }
+    public boolean isBlocked(Rectangle playerBounds) {
+        return isBlocked(playerBounds, false);
     }
 
-    public boolean isBlocked(Rectangle playerBounds){
-        if(playerBounds== null){
+    public boolean isBlocked(Rectangle playerBounds, boolean hasKey){
+        if (playerBounds == null || collisionLayer == null) {
             return false;
         }
-        for (Rectangle colisionRectangle : wallColisions){
-            if(colisionRectangle.overlaps(playerBounds)){
+
+        for (MapObject object : collisionLayer.getObjects()) {
+            if (!(object instanceof RectangleMapObject rectangleMapObject)) continue;
+
+            if (isDoor(object) && hasKey) continue;
+
+            if (rectangleMapObject.getRectangle().overlaps(playerBounds)) {
                 return true;
             }
         }
@@ -90,5 +91,14 @@ public class LevelManager {
 
     }
 
+    private boolean isDoor(MapObject object) {
+        String name = object.getName();
+        String clazz = object.getProperties().get("class", String.class);
+        String type = object.getProperties().get("type", String.class);
+
+        return DOOR_TAG.equalsIgnoreCase(name)
+            || DOOR_TAG.equalsIgnoreCase(clazz)
+            || DOOR_TAG.equalsIgnoreCase(type);
+    }
 
 }

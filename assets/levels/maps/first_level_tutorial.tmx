@@ -66,15 +66,17 @@
   <object id="6" name="cofre1" type="cofre" x="194.902" y="131.022" width="10.1087" height="10.0435"/>
   <object id="7" name="cofre1" type="cofre" x="210.891" y="130.978" width="10.1087" height="9.98913"/>
   <object id="8" name="cofre2" type="cofre" x="212.043" y="37.7609" width="8.20652" height="6.98913"/>
-  <object id="11" name="cofre3" x="50" y="36.9375" width="12.5" height="8.5625"/>
-  <object id="35" name="puerta2" type="puerta" x="48.25" y="80.75" width="31.5" height="15">
+  <object id="11" name="cofre3" type="cofre" x="50" y="36.9375" width="12.5" height="8.5625"/>
+  <object id="35" name="door2" type="door" x="48.25" y="80.75" width="31.5" height="15">
    <properties>
-    <property name="key?" type="bool" value="false"/>
+    <property name="doorID" value="second_door"/>
+    <property name="requiresKey" type="bool" value="true"/>
    </properties>
   </object>
-  <object id="36" name="puerta1" type="puerta" x="112.75" y="161" width="31.5" height="14.75">
+  <object id="36" name="door1" type="door" x="112.75" y="161" width="31.5" height="14.75">
    <properties>
-    <property name="hasKey?" type="bool" value="false"/>
+    <property name="doorID" value="first_door"/>
+    <property name="requiresKey" type="bool" value="true"/>
    </properties>
   </object>
   <object id="39" x="9.5" y="0.75" width="236.75" height="15.25"/>
@@ -87,9 +89,14 @@
   <object id="47" x="176.75" y="177.5" width="7.25" height="46.25"/>
   <object id="49" x="240.5" y="16.75" width="6" height="47.25"/>
   <object id="69" x="144.875" y="159.875" width="102.25" height="16.75"/>
-  <object id="71" name="salida" x="96.75" y="192.5" width="14.75" height="14.5"/>
+  <object id="71" name="salida" x="98.75" y="196" width="10.5" height="8.75"/>
   <object id="75" x="241" y="96.125" width="6" height="63"/>
-  <object id="76" name="puerta3" type="puerta" x="240.25" y="64.875" width="6" height="29.75"/>
+  <object id="76" name="door3" type="door" x="240.25" y="64.875" width="6" height="29.75">
+   <properties>
+    <property name="doorID" value="third_door"/>
+    <property name="requiresKey" type="bool" value="true"/>
+   </properties>
+  </object>
   <object id="77" x="80.375" y="80.625" width="31.5" height="15.5"/>
  </objectgroup>
  <objectgroup id="5" name="objetos">
