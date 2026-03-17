@@ -59,6 +59,7 @@ public class GameScreen implements Screen {
         cameraManager.innit();
         viewport = new FitViewport(CAMERA_WIDTH, CAMERA_HEIGHT, cameraManager.camera);
         viewport.apply(true);
+        spriteManager.setLevelManager(levelManager);
     }
 
     //Invocado como un bucle principal de la Screen para renderizar lo que ocurre en partida o mostrar el menu

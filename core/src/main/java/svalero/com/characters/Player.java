@@ -19,6 +19,7 @@ public class Player extends Character implements Disposable {
     public Player(Texture playerTexture, Vector2 position, SpriteManager spriteManager) {
         super(playerTexture, position, spriteManager);
         setRenderScale(PLAYER_RENDER_SCALE);
+
     }
 
     @Override
