@@ -18,4 +18,6 @@ public class Constants {
 
     public static final float PLAYER_RENDER_SCALE = 1f;
 
+    public static final float SCALE_MODIFIER = 0.5f;
+
 }
