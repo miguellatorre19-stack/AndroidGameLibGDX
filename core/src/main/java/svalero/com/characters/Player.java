@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import lombok.Data;
+import svalero.com.items.Key;
 import svalero.com.managers.SpriteManager;
 import svalero.com.screens.MainMenuScreen;
 
@@ -15,12 +16,13 @@ import static svalero.com.utils.Constants.PLAYER_RENDER_SCALE;
 public class Player extends Character implements Disposable {
 
     Texture playerTexture;
-    private boolean hasKey;
+    private int keysInInventory;
 
     public Player(Texture playerTexture, Vector2 position, SpriteManager spriteManager) {
         super(playerTexture, position, spriteManager);
         setRenderScale(PLAYER_RENDER_SCALE);
         lives = 3;
+        keysInInventory = 0;
     }
 
     @Override
@@ -39,19 +41,22 @@ public class Player extends Character implements Disposable {
         dispose();
     }
 
-    public void interact(){
-    }
-
     public boolean hasKey() {
-        return hasKey;
+        return keysInInventory > 0;
     }
 
-    public void giveKey() {
-        hasKey = true;
-    }
+    public void getKey(Key key){
+        if (key == null || key.isCollected()) return;
 
+        if (Intersector.overlaps(key.getColision(), rect)){
+            keysInInventory +=1;
+            key.collect();
+        }
+    }
     public void removeKey() {
-        hasKey = false;
+        if (keysInInventory > 0) {
+            keysInInventory -=1;
+        }
     }
 
     @Override
@@ -61,13 +66,6 @@ public class Player extends Character implements Disposable {
 
     public void resurrect(){
 
-    }
-
-    @Override
-    public void checkColisions(SpriteManager spriteManager) {
-        if (Intersector.overlaps(rect, rect)){
-            affected();
-        }
     }
 
     @Override

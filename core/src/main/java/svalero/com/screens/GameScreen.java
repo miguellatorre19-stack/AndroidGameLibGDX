@@ -13,6 +13,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import svalero.com.KeyFinder;
 import svalero.com.characters.Enemy;
 import svalero.com.characters.Player;
+import svalero.com.items.Key;
 import svalero.com.managers.*;
 
 import static svalero.com.utils.Constants.CAMERA_HEIGHT;
@@ -56,7 +57,7 @@ public class GameScreen implements Screen {
         Texture enemy2Texture = new Texture("characters/Character_animation/monsters_idle/vampire/v2/vampire_v2_1.png");
         player = new Player(
             playerTexture,
-            new Vector2(120, 100),
+            new Vector2(120, 50),
             spriteManager
         );
 
@@ -72,9 +73,16 @@ public class GameScreen implements Screen {
             spriteManager,
             3
         );
+
+        Key mapKey = new Key(
+            new Texture("interactables/items and trap_animation/keys/keys_1_1.png"),
+            new Vector2(140, 50)
+        );
+
         spriteManager.setPlayer(player);
         spriteManager.addEnemy(enemy);
         spriteManager.addEnemy(enemy2);
+        spriteManager.addWorldKey(mapKey);
         spriteManager.setLevelManager(levelManager);
         // Wall trap projectiles (slow constant fire).
         spriteManager.addProjectileSource(new Vector2(145, 225), new Vector2(0f, -1f), 1.5f, false);
@@ -101,6 +109,10 @@ public class GameScreen implements Screen {
 
     private void logic(float delta) {
         spriteManager.handleInput(delta);
+        if (levelManager.isAtLevelExit(player.getRect())) {
+            game.setScreen(new MainMenuScreen(game));
+            dispose();
+        }
     }
 
 

@@ -48,7 +48,6 @@ public abstract class Character {
     public abstract void attack();
     public abstract void die();
     public abstract void update();
-    public abstract void checkColisions(SpriteManager spriteManager);
     public abstract void affected();
     public  boolean isDead(){
         return dead;

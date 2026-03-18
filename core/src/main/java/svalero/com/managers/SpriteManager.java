@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.Array;
 import svalero.com.KeyFinder;
 import svalero.com.characters.Enemy;
 import svalero.com.characters.Player;
+import svalero.com.items.Key;
 import svalero.com.characters.Projectile;
 
 import static svalero.com.utils.Constants.PlayerSpeed_PxPerSec;
@@ -31,6 +32,7 @@ public class SpriteManager  {
 
     private final KeyFinder game;
     protected  Player player;
+    private final Array<Key> worldKeys;
     private final Array<Enemy> enemies;
     private final Array<Projectile> projectiles;
     private final Array<ProjectileSource> projectileSources;
@@ -38,9 +40,11 @@ public class SpriteManager  {
     private LevelManager levelManager;
     private CameraManager cameraManager;
 
+
     public SpriteManager(KeyFinder game){
         // Game reference kept for future gameplay logic.
         this.game = game;
+        worldKeys = new Array<>();
         enemies = new Array<>();
         projectiles = new Array<>();
         projectileSources = new Array<>();
@@ -50,6 +54,15 @@ public class SpriteManager  {
 
     public KeyFinder getGame() {
         return game;
+    }
+
+    public Array<Key> getWorldKeys(){
+        return worldKeys;
+    }
+
+    public void addWorldKey(Key key){
+        if (key == null) return;
+        worldKeys.add(key);
     }
 
     public void setPlayer(Player player) {
@@ -110,7 +123,11 @@ public class SpriteManager  {
             player.getPosition().x += moveX;
             player.getRect().setPosition(player.getPosition().x, player.getPosition().y);
 
-            if (levelManager != null && levelManager.isBlocked(player.getRect(), player.hasKey())) {
+            boolean blocked = levelManager != null && levelManager.isBlocked(player.getRect(), player.hasKey());
+            if (levelManager != null && levelManager.consumeDoorUnlockEvent()) {
+                player.removeKey();
+            }
+            if (blocked) {
                 player.getPosition().x = oldX;
                 player.getRect().setPosition(player.getPosition().x, player.getPosition().y);
             }
@@ -122,7 +139,11 @@ public class SpriteManager  {
             player.getPosition().y += moveY;
             player.getRect().setPosition(player.getPosition().x, player.getPosition().y);
 
-            if (levelManager != null && levelManager.isBlocked(player.getRect(), player.hasKey())) {
+            boolean blocked = levelManager != null && levelManager.isBlocked(player.getRect(), player.hasKey());
+            if (levelManager != null && levelManager.consumeDoorUnlockEvent()) {
+                player.removeKey();
+            }
+            if (blocked) {
                 player.getPosition().y = oldY;
                 player.getRect().setPosition(player.getPosition().x, player.getPosition().y);
             }
@@ -131,6 +152,7 @@ public class SpriteManager  {
         updateEnemies(dt);
         updateProjectileSources(dt);
         updateProjectiles(dt);
+        updateWorldKeys();
     }
 
     private void updateEnemies(float dt) {
@@ -211,6 +233,17 @@ public class SpriteManager  {
             }
         }
         return false;
+    }
+
+    private void updateWorldKeys() {
+        for (int i = worldKeys.size - 1; i >= 0; i--) {
+            Key key = worldKeys.get(i);
+            player.getKey(key);
+            if (key.isCollected()) {
+                key.dispose();
+                worldKeys.removeIndex(i);
+            }
+        }
     }
 
 }
