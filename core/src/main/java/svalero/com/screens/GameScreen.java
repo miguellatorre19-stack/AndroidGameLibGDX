@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import svalero.com.KeyFinder;
+import svalero.com.characters.Enemy;
 import svalero.com.characters.Player;
 import svalero.com.managers.*;
 
@@ -27,7 +28,8 @@ public class GameScreen implements Screen {
     private CameraManager cameraManager;
     private Viewport viewport;
     private Player player;
-
+    private Enemy enemy;
+    private Enemy enemy2;
     private Sound sound;
     private Music music;
 
@@ -50,16 +52,36 @@ public class GameScreen implements Screen {
         cameraManager = new CameraManager();
         Texture playerTexture = new Texture("characters/Character_animation/priests_idle/priest1/v1/priest1_v1_1.png");
         playerTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        Texture enemyTexture = new Texture("characters/Character_animation/monsters_idle/skeleton2/v2/skeleton2_v2_1.png");
+        Texture enemy2Texture = new Texture("characters/Character_animation/monsters_idle/vampire/v2/vampire_v2_1.png");
         player = new Player(
             playerTexture,
-            new Vector2(120, 50),
+            new Vector2(120, 100),
             spriteManager
         );
+
+        enemy = new Enemy(
+            enemyTexture,
+            new Vector2(200, 190),
+            spriteManager,
+            2
+        );
+        enemy2 = new Enemy(
+            enemy2Texture,
+            new Vector2(80, 190),
+            spriteManager,
+            3
+        );
         spriteManager.setPlayer(player);
+        spriteManager.addEnemy(enemy);
+        spriteManager.addEnemy(enemy2);
+        spriteManager.setLevelManager(levelManager);
+        // Wall trap projectiles (slow constant fire).
+        spriteManager.addProjectileSource(new Vector2(145, 225), new Vector2(0f, -1f), 1.5f, false);
+        spriteManager.addProjectileSource(new Vector2(175, 225), new Vector2(0f, -1f), 2.5f, false);
         cameraManager.innit();
         viewport = new FitViewport(CAMERA_WIDTH, CAMERA_HEIGHT, cameraManager.camera);
         viewport.apply(true);
-        spriteManager.setLevelManager(levelManager);
     }
 
     //Invocado como un bucle principal de la Screen para renderizar lo que ocurre en partida o mostrar el menu

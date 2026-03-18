@@ -9,7 +9,6 @@ import lombok.Data;
 import svalero.com.managers.SpriteManager;
 import svalero.com.screens.MainMenuScreen;
 
-import static com.badlogic.gdx.math.Interpolation.circle;
 import static svalero.com.utils.Constants.PLAYER_RENDER_SCALE;
 
 @Data
@@ -21,6 +20,7 @@ public class Player extends Character implements Disposable {
     public Player(Texture playerTexture, Vector2 position, SpriteManager spriteManager) {
         super(playerTexture, position, spriteManager);
         setRenderScale(PLAYER_RENDER_SCALE);
+        lives = 3;
     }
 
     @Override
@@ -72,7 +72,12 @@ public class Player extends Character implements Disposable {
 
     @Override
     public void affected() {
+        if (dead) return;
         lives -= 1;
+        if (lives <= 0) {
+            dead = true;
+            die();
+        }
     }
 
     @Override
