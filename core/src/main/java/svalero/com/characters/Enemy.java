@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
+import svalero.com.items.Key;
 import svalero.com.managers.LevelManager;
 import svalero.com.managers.SpriteManager;
 
@@ -40,16 +41,15 @@ public class Enemy extends Character implements Disposable {
     public void die() {
         if (dead) return;
         dead = true;
+        Key droppedKey = drop();
+        if (droppedKey != null) {
+            spriteManager.addWorldKey(droppedKey);
+        }
         dispose();
     }
 
     @Override
     public void update() {
-
-    }
-
-    @Override
-    public void checkColisions(SpriteManager spriteManager) {
 
     }
 
@@ -125,5 +125,12 @@ public class Enemy extends Character implements Disposable {
         position.x = MathUtils.clamp(position.x, 0f, Float.MAX_VALUE);
         position.y = MathUtils.clamp(position.y, 0f, Float.MAX_VALUE);
         rect.setPosition(position.x, position.y);
+    }
+
+    private Key drop(){
+        return new Key(
+            new Texture("interactables/items and trap_animation/keys/keys_1_1.png"),
+            new Vector2(position.x, position.y)
+        );
     }
 }

@@ -6,13 +6,14 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import svalero.com.characters.Enemy;
 import svalero.com.characters.Projectile;
+import svalero.com.items.Key;
 
 //contiene el código que permite el renderizado (o pintado) de todos los elementos del juego en la pantalla.
 // Los cálculos de dónde pintar a cada elemento del juego los realiza el SpriteManager
 // y esta clase sólo tiene que pintar cada uno de ellos utilizando el método que cada uno tiene implementado,
 //sólo los carga desde el fichero donde esté la información del mapa correspondiente.
 public class RenderManager {
-    private SpriteBatch batch;
+    public SpriteBatch batch;
     private SpriteManager spriteManager;
     private BitmapFont font;
 
@@ -26,6 +27,9 @@ public class RenderManager {
             batch.setProjectionMatrix(camera.combined);
         }
         batch.begin();
+        for (Key key : spriteManager.getWorldKeys()) {
+            key.render(batch);
+        }
         spriteManager.player.render(batch);
         for (Enemy enemy : spriteManager.getEnemies()) {
             if (!enemy.isDead()) {
