@@ -1,7 +1,9 @@
 package svalero.com.characters;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
@@ -15,16 +17,46 @@ public class Enemy extends Character implements Disposable {
 
     private static final float CHASE_SPEED_PX_PER_SEC = 24f;
     private static final float ATTACK_COOLDOWN_SEC = 0.6f;
-    private static final float AGGRO_DISTANCE_PX = 2f * TILE_SIZE_PX;
+    private static final float AGGRO_DISTANCE_PX = 12f * TILE_SIZE_PX;
     private static final float AGGRO_DISTANCE_PX_SQUARED = AGGRO_DISTANCE_PX * AGGRO_DISTANCE_PX;
 
-    private float attackCooldown;
+    private final Animation<TextureRegion> idleAnimation;
+    private final Animation<TextureRegion> movementAnimation;
+    private final Animation<TextureRegion> attackAnimation;
+    private final Animation<TextureRegion> damagedAnimation;
+    private final Animation<TextureRegion> deathAnimation;
 
-    public Enemy(Texture texture, Vector2 position, SpriteManager spriteManager, int maxLives) {
-        super(texture, position, spriteManager);
+
+    private float attackCooldown;
+    private float attackTimer;
+    private float damagedTimer;
+    private float deathTimer;
+    private boolean dying;
+
+    public Enemy(
+        Vector2 position,
+        SpriteManager spriteManager,
+        int maxLives,
+        Animation<TextureRegion> idleAnimation,
+        Animation<TextureRegion> movementAnimation,
+        Animation<TextureRegion> attackAnimation,
+        Animation<TextureRegion> damagedAnimation,
+        Animation<TextureRegion> deathAnimation
+    ) {
+        super(position, spriteManager, idleAnimation);
+        this.idleAnimation = idleAnimation;
+        this.movementAnimation = movementAnimation;
+        this.attackAnimation = attackAnimation;
+        this.damagedAnimation = damagedAnimation;
+        this.deathAnimation = deathAnimation;
         lives = maxLives;
         attackCooldown = 0f;
+        attackTimer = 0f;
+        damagedTimer = 0f;
+        deathTimer = 0f;
+        dying = false;
     }
+
 
     @Override
     public void render(Batch batch) {
@@ -34,18 +66,17 @@ public class Enemy extends Character implements Disposable {
 
     @Override
     public void attack() {
-
+        attackTimer = attackAnimation.getAnimationDuration();
+        setAnimation(attackAnimation, true);
     }
+
 
     @Override
     public void die() {
-        if (dead) return;
-        dead = true;
-        Key droppedKey = drop();
-        if (droppedKey != null) {
-            spriteManager.addWorldKey(droppedKey);
-        }
-        dispose();
+        if (dead || dying) return;
+        dying = true;
+        deathTimer = deathAnimation.getAnimationDuration();
+        setAnimation(deathAnimation, true);
     }
 
     @Override
@@ -55,19 +86,19 @@ public class Enemy extends Character implements Disposable {
 
     @Override
     public void affected() {
-        if (dead) return;
+        if (dead || dying) return;
         lives -= 1;
         if (lives <= 0) {
             die();
+            return;
         }
+        damagedTimer = damagedAnimation.getAnimationDuration();
+        setAnimation(damagedAnimation, true);
     }
 
     @Override
     public void dispose() {
-        if (texture != null) {
-            texture.dispose();
-            texture = null;
-        }
+        // Animation frames belong to the shared atlas and are disposed by AssetManager.
     }
 
     public void onProjectileHit() {
@@ -77,28 +108,71 @@ public class Enemy extends Character implements Disposable {
     public void updateBehavior(Player player, float dt, LevelManager levelManager) {
         if (dead || player == null) return;
 
-        if (attackCooldown > 0f) {
-            attackCooldown -= dt;
-        }
+        if (attackCooldown > 0f) attackCooldown -= dt;
+        if (playPriorityAnimation(dt)) return;
 
-        float toPlayerX = player.getRect().x - rect.x;
-        float toPlayerY = player.getRect().y - rect.y;
-        float distanceSquared = toPlayerX * toPlayerX + toPlayerY * toPlayerY;
-
-        if (distanceSquared <= AGGRO_DISTANCE_PX_SQUARED) {
-            float distance = (float) Math.sqrt(distanceSquared);
-            if (distance > 0.0001f) {
-                float moveX = (toPlayerX / distance) * CHASE_SPEED_PX_PER_SEC * dt;
-                float moveY = (toPlayerY / distance) * CHASE_SPEED_PX_PER_SEC * dt;
-                moveWithCollision(moveX, moveY, levelManager);
-            }
-        }
+        boolean moved = chasePlayer(player, dt, levelManager);
 
         if (rect.overlaps(player.getRect()) && attackCooldown <= 0f) {
             attack();
             player.affected();
             attackCooldown = ATTACK_COOLDOWN_SEC;
+            return;
         }
+
+        if (moved) {
+            setAnimation(movementAnimation, false);
+        } else {
+            setAnimation(idleAnimation, false);
+        }
+    }
+
+    private boolean playPriorityAnimation(float dt) {
+        if (dying) {
+            deathTimer -= dt;
+            if (deathTimer <= 0f) {
+                dead = true;
+                spriteManager.addWorldKey(drop());
+                dispose();
+            }
+            return true;
+        }
+
+        if (damagedTimer > 0f) {
+            damagedTimer -= dt;
+            setAnimation(damagedAnimation, false);
+            return true;
+        }
+
+        if (attackTimer > 0f) {
+            attackTimer -= dt;
+            setAnimation(attackAnimation, false);
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean chasePlayer(Player player, float dt, LevelManager levelManager) {
+        float enemyCenterX = rect.x + rect.width * 0.5f;
+        float enemyCenterY = rect.y + rect.height * 0.5f;
+        float playerCenterX = player.getRect().x + player.getRect().width * 0.5f;
+        float playerCenterY = player.getRect().y + player.getRect().height * 0.5f;
+
+        float toPlayerX = playerCenterX - enemyCenterX;
+        float toPlayerY = playerCenterY - enemyCenterY;
+        float distanceSquared = toPlayerX * toPlayerX + toPlayerY * toPlayerY;
+        if (distanceSquared > AGGRO_DISTANCE_PX_SQUARED) return false;
+
+        float distance = (float) Math.sqrt(distanceSquared);
+        if (distance <= 0.0001f) return false;
+
+        float moveX = (toPlayerX / distance) * CHASE_SPEED_PX_PER_SEC * dt;
+        float moveY = (toPlayerY / distance) * CHASE_SPEED_PX_PER_SEC * dt;
+        float oldX = position.x;
+        float oldY = position.y;
+        moveWithCollision(moveX, moveY, levelManager);
+        return oldX != position.x || oldY != position.y;
     }
 
     private void moveWithCollision(float moveX, float moveY, LevelManager levelManager) {
@@ -127,9 +201,15 @@ public class Enemy extends Character implements Disposable {
         rect.setPosition(position.x, position.y);
     }
 
+    private void setAnimation(Animation<TextureRegion> nextAnimation, boolean restart) {
+        if (animation != nextAnimation || restart) {
+            animation = nextAnimation;
+            stateTime = 0f;
+        }
+    }
+
     private Key drop(){
         return new Key(
-            new Texture("interactables/items and trap_animation/keys/keys_1_1.png"),
             new Vector2(position.x, position.y)
         );
     }

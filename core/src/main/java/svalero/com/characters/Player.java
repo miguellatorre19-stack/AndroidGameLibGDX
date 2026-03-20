@@ -1,33 +1,24 @@
 package svalero.com.characters;
 
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
-import lombok.Data;
 import svalero.com.items.Key;
 import svalero.com.managers.SpriteManager;
 import svalero.com.screens.MainMenuScreen;
 
 import static svalero.com.utils.Constants.PLAYER_RENDER_SCALE;
 
-@Data
 public class Player extends Character implements Disposable {
 
-    Texture playerTexture;
     private int keysInInventory;
 
-    public Player(Texture playerTexture, Vector2 position, SpriteManager spriteManager) {
-        super(playerTexture, position, spriteManager);
+    public Player(Vector2 position, SpriteManager spriteManager, Animation<TextureRegion> playerAnimation) {
+        super(position, spriteManager, playerAnimation);
         setRenderScale(PLAYER_RENDER_SCALE);
         lives = 3;
-        keysInInventory = 0;
-    }
-
-    @Override
-    public void render(Batch batch) {
-        super.render(batch);
     }
 
     @Override
@@ -53,18 +44,13 @@ public class Player extends Character implements Disposable {
             key.collect();
         }
     }
+
     public void removeKey() {
-        if (keysInInventory > 0) {
-            keysInInventory -=1;
-        }
+        if (keysInInventory > 0) keysInInventory -=1;
     }
 
     @Override
     public void update() {
-
-    }
-
-    public void resurrect(){
 
     }
 
@@ -80,10 +66,6 @@ public class Player extends Character implements Disposable {
 
     @Override
     public void dispose() {
-        texture.dispose();
-    }
-
-    public float setPosition(float x) {
-        return x;
+        // Animation frames belong to the shared atlas and are disposed by AssetManager.
     }
 }

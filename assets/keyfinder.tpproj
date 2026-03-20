@@ -1,5 +1,5 @@
-name=Dungeon_tiles
-filename=
+name=General_atlas
+filename=General_atlas.pack
 output=Texture_Atlas
 
 alias=true
@@ -34,7 +34,7 @@ prettyPrint=false
 legacyOutput=false
 
 scaleFactors=[{suffix:"",factor:1,resampling:bicubic}]
-inputFiles=[{path:2D_Pixel_Dungeon_Asset_Pack/character_and_tileset/wall_side.png,type:Input,regionName:null},{path:2D_Pixel_Dungeon_Asset_Pack/character_and_tileset/wall_front.png,type:Input,regionName:null},{path:2D_Pixel_Dungeon_Asset_Pack/character_and_tileset/door_front.png,type:Input,regionName:null},{path:2D_Pixel_Dungeon_Asset_Pack/character_and_tileset/door_side.png,type:Input,regionName:null},{path:2D_Pixel_Dungeon_Asset_Pack/character_and_tileset/floor.png,type:Input,regionName:null},{path:2D_Pixel_Dungeon_Asset_Pack/items and trap_animation/keys/keys_1_1.png,type:Input,regionName:null},{path:2D_Pixel_Dungeon_Asset_Pack/Character_animation/priests_idle/priest2/v2/priest2_v2_1.png,type:Input,regionName:null}]
+inputFiles=[{path:characters/Character_animation/priests_idle/priest1/v1/priest1_v1_4.png,type:Input,regionName:null},{path:characters/Character_animation/priests_idle/priest1/v1/priest1_v1_2.png,type:Input,regionName:null},{path:characters/Character_animation/priests_idle/priest1/v1/priest1_v1_3.png,type:Input,regionName:null},{path:characters/Character_animation/priests_idle/priest1/v1/priest1_v1_1.png,type:Input,regionName:null},{path:characters/Enemy_Animations_Set/enemy1/movement,type:Input,dirFilePrefix:null,recursive:false,flattenPaths:false},{path:characters/Enemy_Animations_Set/enemy1/attack,type:Input,dirFilePrefix:null,recursive:false,flattenPaths:false},{path:characters/Enemy_Animations_Set/enemy1/damaged,type:Input,dirFilePrefix:null,recursive:false,flattenPaths:false},{path:characters/Enemy_Animations_Set/enemy1/death,type:Input,dirFilePrefix:null,recursive:false,flattenPaths:false},{path:characters/Enemy_Animations_Set/enemy1/idle,type:Input,dirFilePrefix:null,recursive:false,flattenPaths:false},{path:interactables/items and trap_animation/keys/keys_1_2.png,type:Input,regionName:null},{path:interactables/items and trap_animation/keys/keys_1_3.png,type:Input,regionName:null},{path:interactables/items and trap_animation/keys/keys_1_4.png,type:Input,regionName:null},{path:interactables/items and trap_animation/keys/keys_1_1.png,type:Input,regionName:null},{path:interactables/items and trap_animation/arrow,type:Input,dirFilePrefix:null,recursive:false,flattenPaths:false},{path:characters/Character_animation/monsters_idle/skull/v2,type:Input,dirFilePrefix:null,recursive:false,flattenPaths:false}]
 keepInputFileExtensions=false
 
 
