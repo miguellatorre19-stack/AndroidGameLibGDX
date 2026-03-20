@@ -2,10 +2,9 @@ package svalero.com.screens;
 
 
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -14,14 +13,18 @@ import svalero.com.KeyFinder;
 import svalero.com.characters.Enemy;
 import svalero.com.characters.Player;
 import svalero.com.items.Key;
-import svalero.com.managers.*;
+import svalero.com.managers.CameraManager;
+import svalero.com.managers.LevelManager;
+import svalero.com.managers.RenderManager;
+import svalero.com.managers.ResourceManager;
+import svalero.com.managers.SpriteManager;
 
 import static svalero.com.utils.Constants.CAMERA_HEIGHT;
 import static svalero.com.utils.Constants.CAMERA_WIDTH;
 
 public class GameScreen implements Screen {
 
-    final KeyFinder game;
+    private final KeyFinder game;
 
     private SpriteManager spriteManager;
     private LevelManager levelManager;
@@ -29,10 +32,6 @@ public class GameScreen implements Screen {
     private CameraManager cameraManager;
     private Viewport viewport;
     private Player player;
-    private Enemy enemy;
-    private Enemy enemy2;
-    private Sound sound;
-    private Music music;
 
     public GameScreen(final KeyFinder game) {
         this.game = game;
@@ -44,47 +43,12 @@ public class GameScreen implements Screen {
     //   * se ha inicializado en el constructor
     @Override
     public void show() {
-        // start the playback of the background music, when the screen is shown
         ResourceManager.loadAllResources();
-        // Minimal runtime setup: managers and player must exist before first render().
-        renderManager = new RenderManager();
-        spriteManager = new SpriteManager(game);
-        levelManager = new LevelManager(game);
-        cameraManager = new CameraManager();
-        Texture playerTexture = new Texture("characters/Character_animation/priests_idle/priest1/v1/priest1_v1_1.png");
-        playerTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        Texture enemyTexture = new Texture("characters/Character_animation/monsters_idle/skeleton2/v2/skeleton2_v2_1.png");
-        Texture enemy2Texture = new Texture("characters/Character_animation/monsters_idle/vampire/v2/vampire_v2_1.png");
-        player = new Player(
-            playerTexture,
-            new Vector2(120, 50),
-            spriteManager
-        );
+        ResourceManager.finishLoadingResources();
+        initManagers();
+        createEntities();
+        setupWorld();
 
-        enemy = new Enemy(
-            enemyTexture,
-            new Vector2(200, 190),
-            spriteManager,
-            2
-        );
-        enemy2 = new Enemy(
-            enemy2Texture,
-            new Vector2(80, 190),
-            spriteManager,
-            3
-        );
-
-        Key mapKey = new Key(
-            new Texture("interactables/items and trap_animation/keys/keys_1_1.png"),
-            new Vector2(140, 50)
-        );
-
-        spriteManager.setPlayer(player);
-        spriteManager.addEnemy(enemy);
-        spriteManager.addEnemy(enemy2);
-        spriteManager.addWorldKey(mapKey);
-        spriteManager.setLevelManager(levelManager);
-        // Wall trap projectiles (slow constant fire).
         spriteManager.addProjectileSource(new Vector2(145, 225), new Vector2(0f, -1f), 1.5f, false);
         spriteManager.addProjectileSource(new Vector2(175, 225), new Vector2(0f, -1f), 2.5f, false);
         cameraManager.innit();
@@ -115,7 +79,6 @@ public class GameScreen implements Screen {
         }
     }
 
-
     @Override
     public void resize(int width, int height) {
         if (viewport != null) {
@@ -143,5 +106,69 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
 
+    }
+
+    private void initManagers() {
+        renderManager = new RenderManager();
+        spriteManager = new SpriteManager(game);
+        levelManager = new LevelManager(game);
+        cameraManager = new CameraManager();
+    }
+
+    private void createEntities() {
+
+        Animation<TextureRegion> playerIdle = loadAnimation("priest1_v1", 0.18f, Animation.PlayMode.LOOP);
+        Animation<TextureRegion> enemyIdle = loadAnimation("squeleton_idle", 0.18f, Animation.PlayMode.LOOP);
+        Animation<TextureRegion> enemyMovement = loadAnimation("squeleton_movement", 0.10f, Animation.PlayMode.LOOP);
+        Animation<TextureRegion> enemyAttack = loadAnimation("skeleton_attack", 0.08f, Animation.PlayMode.NORMAL);
+        Animation<TextureRegion> enemyDamaged = loadAnimation("squeleton_damaged", 0.10f, Animation.PlayMode.NORMAL);
+        Animation<TextureRegion> enemyDeath = loadAnimation("skeleton_death", 0.10f, Animation.PlayMode.NORMAL);
+
+        Animation<TextureRegion> enemySkullIdle = loadAnimation("skull_v2", 0.10f, Animation.PlayMode.LOOP);
+
+        player = new Player(new Vector2(120, 50), spriteManager, playerIdle);
+        spriteManager.addEnemy(new Enemy(
+            new Vector2(200, 190),
+            spriteManager,
+            2,
+            enemyIdle,
+            enemyMovement,
+            enemyAttack,
+            enemyDamaged,
+            enemyDeath
+        ));
+        spriteManager.addEnemy(new Enemy(
+            new Vector2(80, 190),
+            spriteManager,
+            3,
+            enemyIdle,
+            enemyMovement,
+            enemyAttack,
+            enemyDamaged,
+            enemyDeath
+        ));
+
+        spriteManager.addEnemy(new Enemy(
+            new Vector2(50,50),
+            spriteManager,
+            2,
+            enemySkullIdle,
+            null,
+            null,
+            null,
+            null
+        ));
+    }
+
+    private void setupWorld() {
+        spriteManager.setPlayer(player);
+        spriteManager.addWorldKey(new Key(
+            new Vector2(140, 50)
+        ));
+        spriteManager.setLevelManager(levelManager);
+    }
+
+    private Animation<TextureRegion> loadAnimation(String regionName, float duration, Animation.PlayMode playMode) {
+        return ResourceManager.buildIndexedAnimation(regionName, duration, playMode);
     }
 }

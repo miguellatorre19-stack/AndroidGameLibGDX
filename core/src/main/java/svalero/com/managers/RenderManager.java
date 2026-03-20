@@ -1,6 +1,7 @@
 package svalero.com.managers;
 
 
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -15,6 +16,7 @@ import svalero.com.items.Key;
 public class RenderManager {
     public SpriteBatch batch;
     private SpriteManager spriteManager;
+    private ResourceManager resourceManager;
     private BitmapFont font;
 
     public RenderManager() {
@@ -39,6 +41,7 @@ public class RenderManager {
         for (Projectile projectile : spriteManager.getProjectiles()) {
             projectile.render(batch);
         }
+
         batch.end();
     }
 
