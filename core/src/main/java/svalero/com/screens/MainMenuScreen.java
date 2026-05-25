@@ -11,13 +11,14 @@ import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 import svalero.com.KeyFinder;
-import svalero.com.managers.RenderManager;
+import svalero.com.managers.AudioManager;
 import svalero.com.managers.ResourceManager;
 
 public class MainMenuScreen implements Screen {
 
     private final KeyFinder game;
     private Stage stage;
+    private AudioManager audioManager;
 
     public MainMenuScreen(KeyFinder game) {
         this.game = game;
@@ -68,11 +69,13 @@ public class MainMenuScreen implements Screen {
     public void show() {
         if (!VisUI.isLoaded())
             VisUI.load();
-
+        audioManager = new AudioManager();
         buildUI();
         Gdx.input.setInputProcessor(stage);
         ResourceManager.loadAllResources();
-
+        audioManager.loadMusic("music_title", "audio/music/xDeviruchi - Title Theme .wav");
+        audioManager.playMusic("music_title", true);
+        audioManager.setMusicEnabled(true);
     }
 
     // we need to call game’s SpriteBatch and BitmapFont instances instead of creating our own.
@@ -115,6 +118,7 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void dispose() {
+        audioManager.dispose();
         VisUI.dispose();
         stage.dispose();
     }

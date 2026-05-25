@@ -16,11 +16,7 @@ import svalero.com.KeyFinder;
 import svalero.com.characters.Enemy;
 import svalero.com.characters.Player;
 import svalero.com.items.Key;
-import svalero.com.managers.CameraManager;
-import svalero.com.managers.LevelManager;
-import svalero.com.managers.RenderManager;
-import svalero.com.managers.ResourceManager;
-import svalero.com.managers.SpriteManager;
+import svalero.com.managers.*;
 
 import static svalero.com.utils.Constants.CAMERA_HEIGHT;
 import static svalero.com.utils.Constants.CAMERA_WIDTH;
@@ -38,6 +34,7 @@ public class GameScreen implements Screen {
     private boolean isPaused;
     private PauseOverlay pauseOverlay;
     private PauseInput pauseInput;
+    private AudioManager audioManager;
 
     public GameScreen(final KeyFinder game) {
         this.game = game;
@@ -52,6 +49,7 @@ public class GameScreen implements Screen {
         ResourceManager.loadAllResources();
         ResourceManager.finishLoadingResources();
         initManagers();
+        audioManager = new AudioManager();
         createEntities();
         setupWorld();
         pauseOverlay = new PauseOverlay();
@@ -62,6 +60,10 @@ public class GameScreen implements Screen {
         cameraManager.innit();
         viewport = new FitViewport(CAMERA_WIDTH, CAMERA_HEIGHT, cameraManager.camera);
         viewport.apply(true);
+
+        audioManager.loadMusic("level_music", "audio/music/xDeviruchi - Mysterious Dungeon.wav");
+        audioManager.playMusic("level_music", true);
+        audioManager.setMusicEnabled(true);
     }
 
     //Invocado como un bucle principal de la Screen para renderizar lo que ocurre en partida o mostrar el menu
@@ -131,7 +133,12 @@ public class GameScreen implements Screen {
                 game.setScreen(new MainMenuScreen(game));
                 dispose();
             }
-            case TOGGLE_SOUND -> pauseOverlay.pressSound();
+            case TOGGLE_SOUND -> {
+                pauseOverlay.pressSound();
+                boolean enable = !audioManager.isSoundEnabled();
+                audioManager.setSoundEnabled(enable); // SFX
+                audioManager.setMusicEnabled(enable); // Música
+            }
             case NONE -> {
                 // No action needed.
             }
