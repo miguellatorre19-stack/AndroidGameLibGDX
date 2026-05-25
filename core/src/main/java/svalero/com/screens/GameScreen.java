@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
@@ -35,6 +36,7 @@ public class GameScreen implements Screen {
     private PauseOverlay pauseOverlay;
     private PauseInput pauseInput;
     private AudioManager audioManager;
+    private HudManager hudManager;
 
     public GameScreen(final KeyFinder game) {
         this.game = game;
@@ -54,6 +56,8 @@ public class GameScreen implements Screen {
         setupWorld();
         pauseOverlay = new PauseOverlay();
         pauseInput = new PauseInput();
+        hudManager = new HudManager(renderManager.batch);
+        hudManager.setLives(player.getLives());
 
         spriteManager.addProjectileSource(new Vector2(145, 225), new Vector2(0f, -1f), 1.5f, false);
         spriteManager.addProjectileSource(new Vector2(175, 225), new Vector2(0f, -1f), 2.5f, false);
@@ -77,6 +81,8 @@ public class GameScreen implements Screen {
         draw();
         drawPauseOverlay(delta);
         handlePauseOverlayActions();
+        renderManager.batch.setProjectionMatrix(hudManager.stage.getCamera().combined);
+        hudManager.stage.draw();
     }
 
     private void draw() {
@@ -88,12 +94,15 @@ public class GameScreen implements Screen {
 
     }
 
-    private void logic(float delta) {
+    private void logic(float delta) {//es lo mismo que update
         spriteManager.handleInput(delta);
         if (levelManager.isAtLevelExit(player.getRect())) {
             game.setScreen(new MainMenuScreen(game));
             dispose();
         }
+
+        hudManager.update(delta);
+        hudManager.setLives(player.getLives());
 
     }
 
@@ -150,6 +159,7 @@ public class GameScreen implements Screen {
         if (viewport != null) {
             viewport.update(width, height, true);
         }
+        hudManager.stage.getViewport().update(width, height, true);
     }
 
     //
