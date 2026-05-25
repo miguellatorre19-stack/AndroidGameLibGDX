@@ -31,6 +31,7 @@ dependencies {
   implementation "com.github.MrStahlfelge.gdx-websockets:common:$websocketVersion"
   implementation project(':core')
 
+
   if(enableGraalNative == 'true') {
     implementation "io.github.berstanio:gdx-svmhelper-backend-lwjgl3:$graalHelperVersion"
       implementation "io.github.berstanio:gdx-svmhelper-extension-box2d:$graalHelperVersion"

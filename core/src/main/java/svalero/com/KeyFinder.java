@@ -1,10 +1,12 @@
 package svalero.com;
 
+import com.badlogic.gdx.Audio;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import svalero.com.managers.AudioManager;
 import svalero.com.screens.SplashScreen;
 
 public class KeyFinder extends Game {
@@ -12,6 +14,11 @@ public class KeyFinder extends Game {
     public SpriteBatch batch;
     public TextureAtlas atlas;
 
+    public AudioManager getAudioManager() {
+        return audioManager;
+    }
+
+    public AudioManager audioManager;
 
     public static AssetManager manager = new AssetManager();
 
