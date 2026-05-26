@@ -10,6 +10,7 @@ import svalero.com.managers.ResourceManager;
 
 public class Key extends Item implements Disposable {
 
+    private static final String ATLAS_ID = ResourceManager.GENERAL_ATLAS_ID;
     private static final String KEY_IDLE_REGION = "keys_1";
     private static final float KEY_FRAME_DURATION = 0.12f;
 
@@ -19,7 +20,7 @@ public class Key extends Item implements Disposable {
 
     public Key(Vector2 position) {
         this(
-            ResourceManager.buildIndexedAnimation(KEY_IDLE_REGION, KEY_FRAME_DURATION, Animation.PlayMode.LOOP),
+            ResourceManager.buildIndexedAnimation(ATLAS_ID, KEY_IDLE_REGION, KEY_FRAME_DURATION, Animation.PlayMode.LOOP),
             position
         );
     }
@@ -32,7 +33,6 @@ public class Key extends Item implements Disposable {
 
     @Override
     public void dispose() {
-        // Frames belong to the shared atlas and are disposed by ResourceManager.
     }
     public Circle getColision(){
         return bounds;

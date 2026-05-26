@@ -1,8 +1,5 @@
 package svalero.com.managers;
 
-//contiene todos los métodos que se encargan de gestionar la lógica del videojuego.
-// Es el encargado de hacer que se mueva todo lo que debe moverse en el juego
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
@@ -12,15 +9,15 @@ import com.badlogic.gdx.utils.Array;
 import svalero.com.KeyFinder;
 import svalero.com.characters.Enemy;
 import svalero.com.characters.Player;
-import svalero.com.items.Key;
 import svalero.com.characters.Projectile;
+import svalero.com.items.Coin;
+import svalero.com.items.Key;
 
 import static svalero.com.utils.Constants.PlayerSpeed_PxPerSec;
-//los cálculos de dónde pintar a cada elemento del juego los realiza el SpriteManager
 
-public class SpriteManager  {
-
+public class SpriteManager {
     private static final float PROJECTILE_SPEED_PX_PER_SEC = 120f;
+    private static final float MIN_PROJECTILE_INTERVAL_SEC = 0.05f;
 
     private static class ProjectileSource {
         Vector2 origin;
@@ -31,48 +28,75 @@ public class SpriteManager  {
     }
 
     private final KeyFinder game;
-    protected  Player player;
+    private final Texture projectileTexture;
+
     private final Array<Key> worldKeys;
+    private final Array<Coin> worldCoins;
     private final Array<Enemy> enemies;
     private final Array<Projectile> projectiles;
     private final Array<ProjectileSource> projectileSources;
-    private final Texture projectileTexture;
+
+    protected Player player;
     private LevelManager levelManager;
-    private CameraManager cameraManager;
 
-
-    public SpriteManager(KeyFinder game){
-        // Game reference kept for future gameplay logic.
+    public SpriteManager(KeyFinder game) {
         this.game = game;
         worldKeys = new Array<>();
+        worldCoins = new Array<>();
         enemies = new Array<>();
         projectiles = new Array<>();
         projectileSources = new Array<>();
-        projectileTexture = new Texture("interactables/items and trap_animation/arrow/Just_arrow.png");
+
+        projectileTexture = new Texture("2D_Pixel_Dungeon_Asset_Pack/items and trap_animation/arrow/Just_arrow.png");
         projectileTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
     }
+
+    // ----- Setup / dependency wiring -----
 
     public KeyFinder getGame() {
         return game;
     }
 
-    public Array<Key> getWorldKeys(){
-        return worldKeys;
-    }
-
-    public void addWorldKey(Key key){
-        if (key == null) return;
-        worldKeys.add(key);
-    }
-
     public void setPlayer(Player player) {
-        // Inject the player instance used by input and rendering logic.
         this.player = player;
     }
 
+    public void setLevelManager(LevelManager levelManager) {
+        this.levelManager = levelManager;
+    }
+
+    // ----- World registration -----
+
+    public void addWorldKey(Key key) {
+        worldKeys.add(key);
+    }
+
+    public void addWorldCoin(Coin coin) {
+        worldCoins.add(coin);
+    }
+
     public void addEnemy(Enemy enemy) {
-        if (enemy == null) return;
         enemies.add(enemy);
+    }
+
+    public void addProjectileSource(Vector2 origin, Vector2 direction, float intervalSec, boolean fromPlayer) {
+        ProjectileSource source = new ProjectileSource();
+        source.origin = new Vector2(origin);
+        source.direction = new Vector2(direction).nor();
+        source.intervalSec = Math.max(MIN_PROJECTILE_INTERVAL_SEC, intervalSec);
+        source.timerSec = 0f;
+        source.fromPlayer = fromPlayer;
+        projectileSources.add(source);
+    }
+
+    // ----- Read-only collections for rendering -----
+
+    public Array<Key> getWorldKeys() {
+        return worldKeys;
+    }
+
+    public Array<Coin> getWorldCoins() {
+        return worldCoins;
     }
 
     public Array<Enemy> getEnemies() {
@@ -83,76 +107,59 @@ public class SpriteManager  {
         return projectiles;
     }
 
-    public void addProjectileSource(Vector2 origin, Vector2 direction, float intervalSec, boolean fromPlayer) {
-        if (origin == null || direction == null || direction.isZero()) return;
+    // ----- Per-frame update -----
 
-        ProjectileSource source = new ProjectileSource();
-        source.origin = new Vector2(origin);
-        source.direction = new Vector2(direction).nor();
-        source.intervalSec = Math.max(0.05f, intervalSec);
-        source.timerSec = 0f;
-        source.fromPlayer = fromPlayer;
-        projectileSources.add(source);
-    }
-
-    public void setLevelManager(LevelManager levelManager){
-        this.levelManager = levelManager;
-    }
-
-    public void setCameraManager(CameraManager cameraManager){
-        this.cameraManager = cameraManager;
-    }
-
+    // Compatibilidad con llamadas actuales desde GameScreen.
     public void handleInput(float dt) {
-        if (player == null) return;
+        update(dt);
+    }
 
-        float dx = 0f;
-        float dy = 0f;
-
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) dx += 1f;
-        else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)  || Gdx.input.isKeyPressed(Input.Keys.A)) dx -= 1f;
-        else if (Gdx.input.isKeyPressed(Input.Keys.UP)    || Gdx.input.isKeyPressed(Input.Keys.W)) dy += 1f;
-        else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)  || Gdx.input.isKeyPressed(Input.Keys.S)) dy -=1f;
-
-        float moveX = dx * PlayerSpeed_PxPerSec * dt;
-        float moveY = dy * PlayerSpeed_PxPerSec * dt;
-
-        // Move X first
-        if (moveX != 0f) {
-            float oldX = player.getPosition().x;
-            player.getPosition().x += moveX;
-            player.getRect().setPosition(player.getPosition().x, player.getPosition().y);
-
-            boolean blocked = levelManager != null && levelManager.isBlocked(player.getRect(), player.hasKey());
-            if (levelManager != null && levelManager.consumeDoorUnlockEvent()) {
-                player.removeKey();
-            }
-            if (blocked) {
-                player.getPosition().x = oldX;
-                player.getRect().setPosition(player.getPosition().x, player.getPosition().y);
-            }
-        }
-
-        // Move Y second
-        if (moveY != 0f) {
-            float oldY = player.getPosition().y;
-            player.getPosition().y += moveY;
-            player.getRect().setPosition(player.getPosition().x, player.getPosition().y);
-
-            boolean blocked = levelManager != null && levelManager.isBlocked(player.getRect(), player.hasKey());
-            if (levelManager != null && levelManager.consumeDoorUnlockEvent()) {
-                player.removeKey();
-            }
-            if (blocked) {
-                player.getPosition().y = oldY;
-                player.getRect().setPosition(player.getPosition().x, player.getPosition().y);
-            }
-        }
-
+    public void update(float dt) {
+        updatePlayerMovement(dt);
         updateEnemies(dt);
         updateProjectileSources(dt);
         updateProjectiles(dt);
         updateWorldKeys();
+        updateWorldCoins();
+    }
+
+    private void updatePlayerMovement(float dt) {
+        float dx = 0f;
+        float dy = 0f;
+
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) dx += 1f;
+        else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) dx -= 1f;
+        else if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W)) dy += 1f;
+        else if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)) dy -= 1f;
+
+        movePlayerAxis(dx * PlayerSpeed_PxPerSec * dt, true);
+        movePlayerAxis(dy * PlayerSpeed_PxPerSec * dt, false);
+    }
+
+    private void movePlayerAxis(float movement, boolean axisX) {
+        if (movement == 0f) return;
+
+        float previous = axisX ? player.getPosition().x : player.getPosition().y;
+        if (axisX) {
+            player.getPosition().x += movement;
+        } else {
+            player.getPosition().y += movement;
+        }
+        player.getRect().setPosition(player.getPosition().x, player.getPosition().y);
+
+        boolean blocked = levelManager.isBlocked(player.getRect(), player.hasKey());
+        if (levelManager.consumeDoorUnlockEvent()) {
+            player.removeKey();
+        }
+
+        if (blocked) {
+            if (axisX) {
+                player.getPosition().x = previous;
+            } else {
+                player.getPosition().y = previous;
+            }
+            player.getRect().setPosition(player.getPosition().x, player.getPosition().y);
+        }
     }
 
     private void updateEnemies(float dt) {
@@ -165,25 +172,6 @@ public class SpriteManager  {
         }
     }
 
-    public void damageEnemiesAt(Rectangle projectileBounds) {
-        if (projectileBounds == null) return;
-
-        for (Enemy enemy : enemies) {
-            if (!enemy.isDead() && enemy.getRect().overlaps(projectileBounds)) {
-                enemy.onProjectileHit();
-                return;
-            }
-        }
-    }
-
-    public void spawnProjectile(Vector2 startPosition, Vector2 direction, boolean fromPlayer) {
-        if (startPosition == null || direction == null) return;
-        if (direction.isZero()) return;
-
-        Vector2 velocity = new Vector2(direction).nor().scl(PROJECTILE_SPEED_PX_PER_SEC);
-        projectiles.add(new Projectile(projectileTexture, startPosition, velocity, fromPlayer));
-    }
-
     private void updateProjectileSources(float dt) {
         for (ProjectileSource source : projectileSources) {
             source.timerSec += dt;
@@ -194,13 +182,18 @@ public class SpriteManager  {
         }
     }
 
+    public void spawnProjectile(Vector2 startPosition, Vector2 direction, boolean fromPlayer) {
+        Vector2 velocity = new Vector2(direction).nor().scl(PROJECTILE_SPEED_PX_PER_SEC);
+        projectiles.add(new Projectile(projectileTexture, startPosition, velocity, fromPlayer));
+    }
+
     private void updateProjectiles(float dt) {
         for (int i = projectiles.size - 1; i >= 0; i--) {
             Projectile projectile = projectiles.get(i);
             projectile.update(dt);
 
             Rectangle bounds = projectile.getBounds();
-            if (levelManager != null && levelManager.isBlocked(bounds, false)) {
+            if (levelManager.isBlocked(bounds, false)) {
                 projectiles.removeIndex(i);
                 continue;
             }
@@ -209,19 +202,27 @@ public class SpriteManager  {
                 if (hitsAnyEnemy(bounds)) {
                     damageEnemiesAt(bounds);
                     projectiles.removeIndex(i);
-                    continue;
                 }
-            } else {
-                if (!player.isDead() && player.getRect().overlaps(bounds)) {
-                    player.affected();
-                    projectiles.removeIndex(i);
-                    continue;
-                }
-                if (hitsAnyEnemy(bounds)) {
-                    damageEnemiesAt(bounds);
-                    projectiles.removeIndex(i);
-                    continue;
-                }
+                continue;
+            }
+
+            if (!player.isDead() && player.getRect().overlaps(bounds)) {
+                player.affected();
+                projectiles.removeIndex(i);
+                continue;
+            }
+            if (hitsAnyEnemy(bounds)) {
+                damageEnemiesAt(bounds);
+                projectiles.removeIndex(i);
+            }
+        }
+    }
+
+    public void damageEnemiesAt(Rectangle projectileBounds) {
+        for (Enemy enemy : enemies) {
+            if (!enemy.isDead() && enemy.getRect().overlaps(projectileBounds)) {
+                enemy.onProjectileHit();
+                return;
             }
         }
     }
@@ -246,4 +247,14 @@ public class SpriteManager  {
         }
     }
 
+    private void updateWorldCoins() {
+        for (int i = worldCoins.size - 1; i >= 0; i--) {
+            Coin coin = worldCoins.get(i);
+            player.getCoin(coin);
+            if (coin.isCollected()) {
+                coin.dispose();
+                worldCoins.removeIndex(i);
+            }
+        }
+    }
 }

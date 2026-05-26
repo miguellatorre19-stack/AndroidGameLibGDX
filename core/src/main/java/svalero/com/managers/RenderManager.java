@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import svalero.com.characters.Enemy;
 import svalero.com.characters.Projectile;
+import svalero.com.items.Coin;
 import svalero.com.items.Key;
 
 //contiene el código que permite el renderizado (o pintado) de todos los elementos del juego en la pantalla.
@@ -32,6 +33,11 @@ public class RenderManager {
         for (Key key : spriteManager.getWorldKeys()) {
             key.render(batch);
         }
+
+        for (Coin coin : spriteManager.getWorldCoins()) {
+            coin.render(batch);
+        }
+
         spriteManager.player.render(batch);
         for (Enemy enemy : spriteManager.getEnemies()) {
             if (!enemy.isDead()) {

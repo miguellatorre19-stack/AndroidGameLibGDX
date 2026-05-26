@@ -27,6 +27,7 @@ public class HudManager implements Disposable {
     private static final float HUD_MIN_WIDTH = 220f;
     private static final float FONT_SCALE = 1.35f;
 
+
     public Stage stage;
     private Viewport viewport;
 
@@ -36,15 +37,18 @@ public class HudManager implements Disposable {
     private boolean timeUp;
     private int key;
     private int lives;
+    private int coins;
 
     private static Label scoreLabel;
     private Label keyLabel;
+    private Label coinLabel;
     private Table heartsTable;
     private Texture fullHeartTexture;
     private Texture emptyHeartTexture;
     private TextureRegion fullHeartRegion;
     private TextureRegion emptyHeartRegion;
     private BitmapFont hudFont;
+    private Texture coinSymbol;
 
     public static Label getScoreLabel() {
         return scoreLabel;
@@ -80,6 +84,7 @@ public class HudManager implements Disposable {
 
         scoreLabel =new Label(String.format("%06d", score), new Label.LabelStyle(hudFont, Color.valueOf("FFD166")));
         keyLabel = new Label(String.format("KEY %02d", key), new Label.LabelStyle(hudFont, Color.valueOf("7FDBFF")));
+        coinLabel = new Label(String.format("COINS X %02d", coins), new Label.LabelStyle(hudFont, Color.valueOf("7FDBFF")));
         heartsTable = new Table();
         heartsTable.right();
 
@@ -91,6 +96,7 @@ public class HudManager implements Disposable {
         table.add(scoreLabel).right();
         table.row();
         table.add(keyLabel).right();
+        table.add(coinLabel).left();
         table.row();
         table.add(heartsTable).right();
 
@@ -121,6 +127,11 @@ public class HudManager implements Disposable {
             TextureRegion region = i < lives ? fullHeartRegion : emptyHeartRegion;
             heartsTable.add(new Image(new TextureRegionDrawable(region))).size(HEART_SIZE_PX, HEART_SIZE_PX).padRight(HEART_SPACING);
         }
+    }
+
+    public void setCoins(int coins){
+        this.coins = coins;
+        coinLabel.setText(String.format("COINS X %02d", this.coins));
     }
 
     @Override

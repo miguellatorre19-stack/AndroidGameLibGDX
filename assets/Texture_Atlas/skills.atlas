@@ -1,0 +1,15 @@
+skills.png
+size:256,32
+repeat:none
+flamethrower_2
+index:4
+bounds:2,2,32,16
+flamethrower_2
+index:1
+bounds:36,2,32,16
+flamethrower_2
+index:3
+bounds:70,2,32,16
+flamethrower_2
+index:2
+bounds:104,2,32,16

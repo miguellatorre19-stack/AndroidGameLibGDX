@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import svalero.com.KeyFinder;
 import svalero.com.characters.Enemy;
 import svalero.com.characters.Player;
+import svalero.com.items.Coin;
 import svalero.com.items.Key;
 import svalero.com.managers.*;
 
@@ -37,7 +38,7 @@ public class GameScreen implements Screen {
     private PauseInput pauseInput;
     private AudioManager audioManager;
     private HudManager hudManager;
-
+    private static final String ATLAS_ID = ResourceManager.GENERAL_ATLAS_ID;
     public GameScreen(final KeyFinder game) {
         this.game = game;
     }
@@ -103,6 +104,7 @@ public class GameScreen implements Screen {
 
         hudManager.update(delta);
         hudManager.setLives(player.getLives());
+        hudManager.setCoins(player.getCoinsInInventory());
 
     }
 
@@ -252,10 +254,23 @@ public class GameScreen implements Screen {
         spriteManager.addWorldKey(new Key(
             new Vector2(140, 50)
         ));
+
+        Vector2[] coinSpawms ={
+            new Vector2(105, 120),
+            new Vector2(110, 120),
+            new Vector2(110, 100),
+            new Vector2(125, 100)
+        };
+
+        for(Vector2 pos : coinSpawms){
+            spriteManager.addWorldCoin(new Coin(pos));
+        }
+
         spriteManager.setLevelManager(levelManager);
+
     }
 
     private Animation<TextureRegion> loadAnimation(String regionName, float duration, Animation.PlayMode playMode) {
-        return ResourceManager.buildIndexedAnimation(regionName, duration, playMode);
+        return ResourceManager.buildIndexedAnimation(ATLAS_ID, regionName, duration, playMode);
     }
 }

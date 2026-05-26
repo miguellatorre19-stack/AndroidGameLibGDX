@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
+import svalero.com.items.Coin;
 import svalero.com.items.Key;
 import svalero.com.managers.SpriteManager;
 import svalero.com.screens.MainMenuScreen;
@@ -14,6 +15,19 @@ import static svalero.com.utils.Constants.PLAYER_RENDER_SCALE;
 public class Player extends Character implements Disposable {
 
     private int keysInInventory;
+
+    public int getCoinsInInventory() {
+        return coinsInInventory;
+    }
+
+    private int coinsInInventory;
+
+    public int price;
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
 
     public Player(Vector2 position, SpriteManager spriteManager, Animation<TextureRegion> playerAnimation) {
         super(position, spriteManager, playerAnimation);
@@ -45,8 +59,22 @@ public class Player extends Character implements Disposable {
         }
     }
 
+    public void getCoin(Coin coin){
+        if( coin == null)return;;
+
+        if(Intersector.overlaps(coin.getColision(), rect)){
+            coinsInInventory +=1;
+            coin.collect();
+        }
+    }
+
     public void removeKey() {
         if (keysInInventory > 0) keysInInventory -=1;
+    }
+
+    public void removeCoins(){
+        if (price >= coinsInInventory) return;
+        if(coinsInInventory > 0) coinsInInventory -= price;
     }
 
     @Override
