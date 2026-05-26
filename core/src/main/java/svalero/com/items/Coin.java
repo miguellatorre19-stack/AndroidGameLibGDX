@@ -8,34 +8,33 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import svalero.com.managers.ResourceManager;
 
-public class Key extends Item implements Disposable {
+public class Coin extends Item implements Disposable {
 
-    private static final String ATLAS_ID = ResourceManager.GENERAL_ATLAS_ID;
-    private static final String KEY_IDLE_REGION = "keys_1";
+    private static final String ATLAS_ID = ResourceManager.ITEMS_ATLAS_ID;
+    private static final String COIN_IDLE = "coin";
     private static final float KEY_FRAME_DURATION = 0.12f;
 
-    public Key(Animation<TextureRegion> keyIdle, Vector2 position) {
-        super(keyIdle, position);
+    public Coin(Animation<TextureRegion> Coin, Vector2 position) {
+        super(Coin, position);
     }
 
-    public Key(Vector2 position) {
+    public Coin(Vector2 position){
         this(
-            ResourceManager.buildIndexedAnimation(ATLAS_ID, KEY_IDLE_REGION, KEY_FRAME_DURATION, Animation.PlayMode.LOOP),
+            ResourceManager.buildIndexedAnimation(ATLAS_ID, COIN_IDLE, KEY_FRAME_DURATION, Animation.PlayMode.LOOP),
             position
         );
     }
 
-
-    @Override
-    public void render(Batch batch) {
+    public void render(Batch batch){
         super.render(batch);
     }
 
     @Override
     public void dispose() {
+
     }
+
     public Circle getColision(){
         return bounds;
     }
-
 }
