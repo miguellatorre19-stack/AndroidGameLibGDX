@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
@@ -15,6 +16,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import svalero.com.KeyFinder;
 import svalero.com.characters.Enemy;
 import svalero.com.characters.Player;
+import svalero.com.items.Coin;
 import svalero.com.items.Key;
 import svalero.com.managers.*;
 
@@ -35,7 +37,8 @@ public class GameScreen implements Screen {
     private PauseOverlay pauseOverlay;
     private PauseInput pauseInput;
     private AudioManager audioManager;
-
+    private HudManager hudManager;
+    private static final String ATLAS_ID = ResourceManager.GENERAL_ATLAS_ID;
     public GameScreen(final KeyFinder game) {
         this.game = game;
     }
@@ -54,6 +57,8 @@ public class GameScreen implements Screen {
         setupWorld();
         pauseOverlay = new PauseOverlay();
         pauseInput = new PauseInput();
+        hudManager = new HudManager(renderManager.batch);
+        hudManager.setLives(player.getLives());
 
         spriteManager.addProjectileSource(new Vector2(145, 225), new Vector2(0f, -1f), 1.5f, false);
         spriteManager.addProjectileSource(new Vector2(175, 225), new Vector2(0f, -1f), 2.5f, false);
@@ -77,6 +82,8 @@ public class GameScreen implements Screen {
         draw();
         drawPauseOverlay(delta);
         handlePauseOverlayActions();
+        renderManager.batch.setProjectionMatrix(hudManager.stage.getCamera().combined);
+        hudManager.stage.draw();
     }
 
     private void draw() {
@@ -88,12 +95,18 @@ public class GameScreen implements Screen {
 
     }
 
-    private void logic(float delta) {
+    private void logic(float delta) {//es lo mismo que update
+        player.updateBoost(delta);
         spriteManager.handleInput(delta);
         if (levelManager.isAtLevelExit(player.getRect())) {
             game.setScreen(new MainMenuScreen(game));
             dispose();
         }
+
+        hudManager.update(delta);
+        hudManager.setLives(player.getLives());
+        hudManager.setCoins(player.getCoinsInInventory());
+        hudManager.setBoost(player.hasBoost(), player.getBoostProgress01());
 
     }
 
@@ -150,6 +163,7 @@ public class GameScreen implements Screen {
         if (viewport != null) {
             viewport.update(width, height, true);
         }
+        hudManager.stage.getViewport().update(width, height, true);
     }
 
     //
@@ -242,10 +256,23 @@ public class GameScreen implements Screen {
         spriteManager.addWorldKey(new Key(
             new Vector2(140, 50)
         ));
+
+        Vector2[] coinSpawms ={
+            new Vector2(105, 120),
+            new Vector2(110, 120),
+            new Vector2(110, 100),
+            new Vector2(125, 100)
+        };
+
+        for(Vector2 pos : coinSpawms){
+            spriteManager.addWorldCoin(new Coin(pos));
+        }
+
         spriteManager.setLevelManager(levelManager);
+
     }
 
     private Animation<TextureRegion> loadAnimation(String regionName, float duration, Animation.PlayMode playMode) {
-        return ResourceManager.buildIndexedAnimation(regionName, duration, playMode);
+        return ResourceManager.buildIndexedAnimation(ATLAS_ID, regionName, duration, playMode);
     }
 }

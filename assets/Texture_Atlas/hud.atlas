@@ -1,0 +1,25 @@
+hud.png
+size:2048,128
+repeat:none
+Green
+bounds:2,33,326,78
+Green Potion
+bounds:1850,33,72,78
+green
+index:3
+bounds:330,57,302,54
+green
+index:5
+bounds:634,57,302,54
+green
+index:2
+bounds:938,57,302,54
+green
+index:4
+bounds:1242,57,302,54
+green
+index:6
+bounds:1546,57,302,54
+green
+index:1
+bounds:330,2,302,53
