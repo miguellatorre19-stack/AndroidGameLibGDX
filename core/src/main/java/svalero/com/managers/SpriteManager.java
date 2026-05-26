@@ -13,8 +13,6 @@ import svalero.com.characters.Projectile;
 import svalero.com.items.Coin;
 import svalero.com.items.Key;
 
-import static svalero.com.utils.Constants.PlayerSpeed_PxPerSec;
-
 public class SpriteManager {
     private static final float PROJECTILE_SPEED_PX_PER_SEC = 120f;
     private static final float MIN_PROJECTILE_INTERVAL_SEC = 0.05f;
@@ -124,6 +122,8 @@ public class SpriteManager {
     }
 
     private void updatePlayerMovement(float dt) {
+        if (player == null) return;
+
         float dx = 0f;
         float dy = 0f;
 
@@ -132,8 +132,9 @@ public class SpriteManager {
         else if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W)) dy += 1f;
         else if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)) dy -= 1f;
 
-        movePlayerAxis(dx * PlayerSpeed_PxPerSec * dt, true);
-        movePlayerAxis(dy * PlayerSpeed_PxPerSec * dt, false);
+        float moveSpeedPxPerSec = player.getMoveSpeedPxPerSec();
+        movePlayerAxis(dx * moveSpeedPxPerSec * dt, true);
+        movePlayerAxis(dy * moveSpeedPxPerSec * dt, false);
     }
 
     private void movePlayerAxis(float movement, boolean axisX) {

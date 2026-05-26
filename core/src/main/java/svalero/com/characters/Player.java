@@ -10,9 +10,12 @@ import svalero.com.items.Key;
 import svalero.com.managers.SpriteManager;
 import svalero.com.screens.MainMenuScreen;
 
+import static svalero.com.utils.Constants.PLAYER_BOOST_DURATION_SEC;
+import static svalero.com.utils.Constants.PlayerSpeed_PxPerSec;
 import static svalero.com.utils.Constants.PLAYER_RENDER_SCALE;
 
 public class Player extends Character implements Disposable {
+    private static final float BOOST_SPEED_MULTIPLIER = 1.5f;
 
     private int keysInInventory;
 
@@ -24,6 +27,9 @@ public class Player extends Character implements Disposable {
 
     public int price;
 
+    private boolean isBoosted;
+    private float boostTimeRemainingSec;
+
     public void setPrice(int price) {
         this.price = price;
     }
@@ -33,6 +39,8 @@ public class Player extends Character implements Disposable {
         super(position, spriteManager, playerAnimation);
         setRenderScale(PLAYER_RENDER_SCALE);
         lives = 3;
+        isBoosted = false;
+        boostTimeRemainingSec = 0f;
     }
 
     @Override
@@ -44,6 +52,16 @@ public class Player extends Character implements Disposable {
     public void die() {
         game.setScreen(new MainMenuScreen(game));
         dispose();
+    }
+
+    @Override
+    public void affected() {
+        if (dead) return;
+        lives -= 1;
+        if (lives <= 0) {
+            dead = true;
+            die();
+        }
     }
 
     public boolean hasKey() {
@@ -59,6 +77,10 @@ public class Player extends Character implements Disposable {
         }
     }
 
+    public void removeKey() {
+        if (keysInInventory > 0) keysInInventory -=1;
+    }
+
     public void getCoin(Coin coin){
         if( coin == null)return;;
 
@@ -67,29 +89,47 @@ public class Player extends Character implements Disposable {
             coin.collect();
         }
     }
-
-    public void removeKey() {
-        if (keysInInventory > 0) keysInInventory -=1;
-    }
-
     public void removeCoins(){
         if (price >= coinsInInventory) return;
         if(coinsInInventory > 0) coinsInInventory -= price;
     }
 
-    @Override
-    public void update() {
+    public void getsBoost(){
+        isBoosted = true;
+        boostTimeRemainingSec = PLAYER_BOOST_DURATION_SEC;
+    }
 
+    public boolean hasBoost(){
+        return isBoosted && boostTimeRemainingSec > 0f;
+    }
+
+    public void updateBoost(float dt) {
+        if (!hasBoost()) return;
+
+        boostTimeRemainingSec -= dt;
+        if (boostTimeRemainingSec <= 0f) {
+            boostTimeRemainingSec = 0f;
+            isBoosted = false;
+        }
+    }
+
+    public float getMoveSpeedPxPerSec() {
+        if (hasBoost()) return PlayerSpeed_PxPerSec * BOOST_SPEED_MULTIPLIER;
+        return PlayerSpeed_PxPerSec;
+    }
+
+    public float getBoostTimeRemainingSec() {
+        return boostTimeRemainingSec;
+    }
+
+    public float getBoostProgress01() {
+        if (!hasBoost()) return 0f;
+        return boostTimeRemainingSec / PLAYER_BOOST_DURATION_SEC;
     }
 
     @Override
-    public void affected() {
-        if (dead) return;
-        lives -= 1;
-        if (lives <= 0) {
-            dead = true;
-            die();
-        }
+    public void update() {
+        // Boost timer is updated from GameScreen logic(delta) to keep all gameplay timers centralized.
     }
 
     @Override

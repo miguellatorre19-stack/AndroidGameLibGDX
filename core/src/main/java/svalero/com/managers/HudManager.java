@@ -2,7 +2,10 @@ package svalero.com.managers;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -11,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -26,6 +30,8 @@ public class HudManager implements Disposable {
     private static final float HUD_ROW_SPACING = 10f;
     private static final float HUD_MIN_WIDTH = 220f;
     private static final float FONT_SCALE = 1.35f;
+    private static final float BOOST_BAR_WIDTH = 170f;
+    private static final float BOOST_BAR_HEIGHT = 16f;
 
 
     public Stage stage;
@@ -49,6 +55,7 @@ public class HudManager implements Disposable {
     private TextureRegion emptyHeartRegion;
     private BitmapFont hudFont;
     private Texture coinSymbol;
+    private BoostBarActor boostBar;
 
     public static Label getScoreLabel() {
         return scoreLabel;
@@ -99,6 +106,16 @@ public class HudManager implements Disposable {
         table.add(coinLabel).left();
         table.row();
         table.add(heartsTable).right();
+        table.row();
+        Animation<TextureRegion> boostAnimation = ResourceManager.buildIndexedAnimation(
+            ResourceManager.HUD_INTERACTIONS_ID,
+            "green",
+            0.10f,
+            Animation.PlayMode.LOOP
+        );
+        boostBar = new BoostBarActor(boostAnimation, BOOST_BAR_WIDTH, BOOST_BAR_HEIGHT);
+        boostBar.setVisible(false);
+        table.add(boostBar).right().width(BOOST_BAR_WIDTH).height(BOOST_BAR_HEIGHT);
 
         stage.addActor(table);
     }
@@ -112,6 +129,9 @@ public class HudManager implements Disposable {
                 timeUp = true;
             }
             timeCount = 0;
+        }
+        if (boostBar != null) {
+            boostBar.updateTime(dt);
         }
     }
 
@@ -134,6 +154,12 @@ public class HudManager implements Disposable {
         coinLabel.setText(String.format("COINS X %02d", this.coins));
     }
 
+    public void setBoost(boolean boosted, float progress01) {
+        if (boostBar == null) return;
+        boostBar.setProgress(progress01);
+        boostBar.setVisible(boosted && progress01 > 0f);
+    }
+
     @Override
     public void dispose() {
         stage.dispose();
@@ -142,5 +168,42 @@ public class HudManager implements Disposable {
         emptyHeartTexture.dispose();
     }
 
+    private static class BoostBarActor extends Actor {
+        private final Animation<TextureRegion> animation;
+        private final TextureRegion clippedFrame;
+        private float stateTime;
+        private float progress;
+
+        private BoostBarActor(Animation<TextureRegion> animation, float width, float height) {
+            this.animation = animation;
+            this.clippedFrame = new TextureRegion();
+            this.stateTime = 0f;
+            this.progress = 1f;
+            setSize(width, height);
+        }
+
+        private void updateTime(float dt) {
+            if (isVisible()) {
+                stateTime += dt;
+            }
+        }
+
+        private void setProgress(float progress01) {
+            this.progress = MathUtils.clamp(progress01, 0f, 1f);
+        }
+
+        @Override
+        public void draw(Batch batch, float parentAlpha) {
+            if (!isVisible() || animation == null || progress <= 0f) return;
+
+            TextureRegion frame = animation.getKeyFrame(stateTime, true);
+            int clippedWidth = Math.max(1, Math.round(frame.getRegionWidth() * progress));
+            clippedFrame.setRegion(frame);
+            clippedFrame.setRegionWidth(clippedWidth);
+
+            batch.setColor(getColor().r, getColor().g, getColor().b, getColor().a * parentAlpha);
+            batch.draw(clippedFrame, getX(), getY(), getWidth() * progress, getHeight());
+        }
+    }
 
 }

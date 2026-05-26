@@ -96,6 +96,7 @@ public class GameScreen implements Screen {
     }
 
     private void logic(float delta) {//es lo mismo que update
+        player.updateBoost(delta);
         spriteManager.handleInput(delta);
         if (levelManager.isAtLevelExit(player.getRect())) {
             game.setScreen(new MainMenuScreen(game));
@@ -105,6 +106,7 @@ public class GameScreen implements Screen {
         hudManager.update(delta);
         hudManager.setLives(player.getLives());
         hudManager.setCoins(player.getCoinsInInventory());
+        hudManager.setBoost(player.hasBoost(), player.getBoostProgress01());
 
     }
 

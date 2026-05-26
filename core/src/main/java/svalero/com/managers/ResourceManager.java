@@ -12,9 +12,13 @@ public final class ResourceManager {
     public static final String GENERAL_ATLAS_ID = "general";
     public static final String ITEMS_ATLAS_ID = "items";
     public static final String SKILLS_ATLAS_ID = "skills";
+    public static final String SCENE_INTERACTIONS_ID = "chest";
+    public static final String HUD_INTERACTIONS_ID = "green";
     public static final String GENERAL_ATLAS_PATH = "Texture_Atlas/General_atlas.pack";
     public static final String ITEMS_ATLAS_PATH = "Texture_Atlas/items.atlas";
     public static final String SKILLS_ATLAS_PATH = "Texture_Atlas/skills.atlas";
+    public static final String SCENE_INTERACTIONS_PATH = "Texture_Atlas/scene_interactions.atlas";
+    public static final String HUD_INTERACTIONS_PATH = "Texture_Atlas/hud.atlas";
 
     private static final AssetManager ASSET_MANAGER = new AssetManager();
     private static final ObjectMap<String, String> ATLAS_PATHS = new ObjectMap<>();
@@ -23,6 +27,8 @@ public final class ResourceManager {
         ATLAS_PATHS.put(GENERAL_ATLAS_ID, GENERAL_ATLAS_PATH);
         ATLAS_PATHS.put(ITEMS_ATLAS_ID, ITEMS_ATLAS_PATH);
         ATLAS_PATHS.put(SKILLS_ATLAS_ID, SKILLS_ATLAS_PATH);
+        ATLAS_PATHS.put( SCENE_INTERACTIONS_ID,SCENE_INTERACTIONS_PATH);
+        ATLAS_PATHS.put(HUD_INTERACTIONS_ID, HUD_INTERACTIONS_PATH);
     }
 
     // ----- Registro y carga -----
