@@ -1,0 +1,56 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "second_level.tmx",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "file.lastUsedOpenFilter": "Todos los archivos (*)",
+    "fileStates": {
+        "Dungeon_Tileset.tsx": {
+            "scaleInDock": 3,
+            "scaleInEditor": 1
+        },
+        "first_level_tutorial.tmx": {
+            "scale": 3.33984375,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 128,
+                "y": 9.281871345029245
+            }
+        },
+        "second_level.tmx": {
+            "scale": 2,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 202.25,
+                "y": 141
+            }
+        },
+        "tilesets/Dungeon_Tileset.tsx": {
+            "scaleInDock": 2
+        },
+        "tilesets/Level1_DungeonEnvironment.tsx": {
+            "scaleInDock": 1
+        }
+    },
+    "last.imagePath": "C:/Users/Usuario/Desktop/DAM/2/MultimediaDispositivos/awesome_game/assets/2D_Pixel_Dungeon_Asset_Pack",
+    "map.height": 16,
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 16,
+    "openFiles": [
+        "first_level_tutorial.tmx",
+        "second_level.tmx"
+    ],
+    "project": "second_level.tiled-project",
+    "recentFiles": [
+        "first_level_tutorial.tmx",
+        "second_level.tmx",
+        "Dungeon_Tileset.tsx"
+    ],
+    "tileset.lastUsedFormat": "tsx"
+}

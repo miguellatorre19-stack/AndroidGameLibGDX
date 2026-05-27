@@ -121,6 +121,7 @@ public class HudManager implements Disposable {
     }
 
     public void update(float dt){
+        stage.act(dt);
         timeCount += dt;
         if(timeCount >= 1){
             if (worldTimer > 0) {
