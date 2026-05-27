@@ -6,7 +6,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
@@ -15,6 +14,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import svalero.com.KeyFinder;
 import svalero.com.characters.Enemy;
+import svalero.com.characters.Neutral;
 import svalero.com.characters.Player;
 import svalero.com.items.Coin;
 import svalero.com.items.Key;
@@ -24,7 +24,11 @@ import static svalero.com.utils.Constants.CAMERA_HEIGHT;
 import static svalero.com.utils.Constants.CAMERA_WIDTH;
 
 public class GameScreen implements Screen {
+    private static final String message_1 = "Woah! Creo que te has perdido, amigo. De algun modo has acacbado en las antiguas catacumbas. " +
+        "No lo vas a tener fácil para huir. Para poder moverte hasta la salida, tendrás que ir abriendo las puertas del laberinto." +
+        "Para ello necesitarás llaves, como esa de ahí. Son de un solo uso, asi que asegúrate de como quieres usarlas";
 
+    private static final String message_2 = "Las calaveras flotantes somo efímeras. Una vez que interactues con nosotros, desapareceremos";
     private final KeyFinder game;
 
     private SpriteManager spriteManager;
@@ -38,6 +42,7 @@ public class GameScreen implements Screen {
     private PauseInput pauseInput;
     private AudioManager audioManager;
     private HudManager hudManager;
+    private PopupMessageManager popupMessageManager;
     private static final String ATLAS_ID = ResourceManager.GENERAL_ATLAS_ID;
     public GameScreen(final KeyFinder game) {
         this.game = game;
@@ -51,18 +56,22 @@ public class GameScreen implements Screen {
     public void show() {
         ResourceManager.loadAllResources();
         ResourceManager.finishLoadingResources();
+
         initManagers();
-        audioManager = new AudioManager();
         createEntities();
         setupWorld();
+
+        audioManager = new AudioManager();
         pauseOverlay = new PauseOverlay();
         pauseInput = new PauseInput();
         hudManager = new HudManager(renderManager.batch);
-        hudManager.setLives(player.getLives());
+        popupMessageManager = new PopupMessageManager(hudManager.stage);
 
+        hudManager.setLives(player.getLives());
         spriteManager.addProjectileSource(new Vector2(145, 225), new Vector2(0f, -1f), 1.5f, false);
         spriteManager.addProjectileSource(new Vector2(175, 225), new Vector2(0f, -1f), 2.5f, false);
         cameraManager.innit();
+
         viewport = new FitViewport(CAMERA_WIDTH, CAMERA_HEIGHT, cameraManager.camera);
         viewport.apply(true);
 
@@ -75,6 +84,7 @@ public class GameScreen implements Screen {
     @Override
     public void render(float delta) {
         togglePause();
+        popupMessageManager.update(delta);
 
         if (!isPaused) {
             logic(delta);
@@ -92,7 +102,6 @@ public class GameScreen implements Screen {
         cameraManager.handleCamera(player, levelManager.getMapWorldWidth(), levelManager.getMapWorldHeight());
         levelManager.loadCurrentLevel(cameraManager.camera);
         renderManager.drawFrame(spriteManager, cameraManager.camera);
-
     }
 
     private void logic(float delta) {//es lo mismo que update
@@ -107,6 +116,7 @@ public class GameScreen implements Screen {
         hudManager.setLives(player.getLives());
         hudManager.setCoins(player.getCoinsInInventory());
         hudManager.setBoost(player.hasBoost(), player.getBoostProgress01());
+        handleNeutralNpcPopupFlow();
 
     }
 
@@ -164,6 +174,9 @@ public class GameScreen implements Screen {
             viewport.update(width, height, true);
         }
         hudManager.stage.getViewport().update(width, height, true);
+        if (popupMessageManager != null) {
+            popupMessageManager.onResize();
+        }
     }
 
     //
@@ -197,6 +210,14 @@ public class GameScreen implements Screen {
             renderManager.batch.dispose();
             renderManager.batch = null;
         }
+        if (hudManager != null) {
+            hudManager.dispose();
+            hudManager = null;
+        }
+        if (popupMessageManager != null) {
+            popupMessageManager.dispose();
+            popupMessageManager = null;
+        }
     }
 
     private void initManagers() {
@@ -214,10 +235,14 @@ public class GameScreen implements Screen {
         Animation<TextureRegion> enemyAttack = loadAnimation("skeleton_attack", 0.08f, Animation.PlayMode.NORMAL);
         Animation<TextureRegion> enemyDamaged = loadAnimation("squeleton_damaged", 0.10f, Animation.PlayMode.NORMAL);
         Animation<TextureRegion> enemyDeath = loadAnimation("skeleton_death", 0.10f, Animation.PlayMode.NORMAL);
+        Animation<TextureRegion> neutralIdle = loadAnimation("skull_v2", 0.10f, Animation.PlayMode.LOOP);
 
-        Animation<TextureRegion> enemySkullIdle = loadAnimation("skull_v2", 0.10f, Animation.PlayMode.LOOP);
+        player = new Player(
+            new Vector2(120, 50),
+            spriteManager,
+            playerIdle
+        );
 
-        player = new Player(new Vector2(120, 50), spriteManager, playerIdle);
         spriteManager.addEnemy(new Enemy(
             new Vector2(200, 190),
             spriteManager,
@@ -228,6 +253,7 @@ public class GameScreen implements Screen {
             enemyDamaged,
             enemyDeath
         ));
+
         spriteManager.addEnemy(new Enemy(
             new Vector2(80, 190),
             spriteManager,
@@ -239,22 +265,25 @@ public class GameScreen implements Screen {
             enemyDeath
         ));
 
-        spriteManager.addEnemy(new Enemy(
-            new Vector2(50,50),
+        spriteManager.addNeutral(new Neutral(
+            new Vector2(140, 50),
             spriteManager,
-            2,
-            enemySkullIdle,
-            null,
-            null,
-            null,
-            null
+            neutralIdle,
+            message_1
+        ));
+
+        spriteManager.addNeutral(new Neutral(
+            new Vector2(50, 100),
+            spriteManager,
+            neutralIdle,
+            message_2
         ));
     }
 
     private void setupWorld() {
         spriteManager.setPlayer(player);
         spriteManager.addWorldKey(new Key(
-            new Vector2(140, 50)
+            new Vector2(160, 50)
         ));
 
         Vector2[] coinSpawms ={
@@ -267,12 +296,29 @@ public class GameScreen implements Screen {
         for(Vector2 pos : coinSpawms){
             spriteManager.addWorldCoin(new Coin(pos));
         }
-
         spriteManager.setLevelManager(levelManager);
-
     }
 
     private Animation<TextureRegion> loadAnimation(String regionName, float duration, Animation.PlayMode playMode) {
         return ResourceManager.buildIndexedAnimation(ATLAS_ID, regionName, duration, playMode);
+    }
+
+    private void handleNeutralNpcPopupFlow() {
+        for (Neutral neutral : spriteManager.getNeutrals()) {
+            if (neutral.isDead()) continue;
+            if (neutral.hasInteractionTriggered()) continue;
+            if (neutral.getRect().overlaps(player.getRect())) {
+                neutral.markInteractionStarted();
+                popupMessageManager.showMessage(neutral.getInteractionMessage());
+            }
+        }
+
+        if (!popupMessageManager.isVisible()) {
+            for (Neutral neutral : spriteManager.getNeutrals()) {
+                if (neutral.isWaitingPopupDismiss()) {
+                    neutral.onPopupDismissed();
+                }
+            }
+        }
     }
 }

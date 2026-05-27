@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import svalero.com.characters.Enemy;
+import svalero.com.characters.Neutral;
 import svalero.com.characters.Projectile;
 import svalero.com.items.Coin;
 import svalero.com.items.Key;
@@ -42,6 +43,11 @@ public class RenderManager {
         for (Enemy enemy : spriteManager.getEnemies()) {
             if (!enemy.isDead()) {
                 enemy.render(batch);
+            }
+        }
+        for (Neutral neutral : spriteManager.getNeutrals()) {
+            if (!neutral.isDead()) {
+                neutral.render(batch);
             }
         }
         for (Projectile projectile : spriteManager.getProjectiles()) {

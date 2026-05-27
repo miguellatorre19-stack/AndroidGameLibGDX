@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import svalero.com.KeyFinder;
 import svalero.com.characters.Enemy;
+import svalero.com.characters.Neutral;
 import svalero.com.characters.Player;
 import svalero.com.characters.Projectile;
 import svalero.com.items.Coin;
@@ -31,19 +32,23 @@ public class SpriteManager {
     private final Array<Key> worldKeys;
     private final Array<Coin> worldCoins;
     private final Array<Enemy> enemies;
+    private final Array<Neutral> neutrals;
     private final Array<Projectile> projectiles;
     private final Array<ProjectileSource> projectileSources;
 
     protected Player player;
     private LevelManager levelManager;
+    private boolean doorUnlockedThisFrame;
 
     public SpriteManager(KeyFinder game) {
         this.game = game;
         worldKeys = new Array<>();
         worldCoins = new Array<>();
         enemies = new Array<>();
+        neutrals = new Array<>();
         projectiles = new Array<>();
         projectileSources = new Array<>();
+        doorUnlockedThisFrame = false;
 
         projectileTexture = new Texture("2D_Pixel_Dungeon_Asset_Pack/items and trap_animation/arrow/Just_arrow.png");
         projectileTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
@@ -77,6 +82,10 @@ public class SpriteManager {
         enemies.add(enemy);
     }
 
+    public void addNeutral (Neutral neutral){
+        neutrals.add(neutral);
+    }
+
     public void addProjectileSource(Vector2 origin, Vector2 direction, float intervalSec, boolean fromPlayer) {
         ProjectileSource source = new ProjectileSource();
         source.origin = new Vector2(origin);
@@ -101,8 +110,18 @@ public class SpriteManager {
         return enemies;
     }
 
+    public Array<Neutral> getNeutrals() {
+        return neutrals;
+    }
+
     public Array<Projectile> getProjectiles() {
         return projectiles;
+    }
+
+    public boolean consumeDoorUnlockedEvent() {
+        boolean unlocked = doorUnlockedThisFrame;
+        doorUnlockedThisFrame = false;
+        return unlocked;
     }
 
     // ----- Per-frame update -----
@@ -113,8 +132,10 @@ public class SpriteManager {
     }
 
     public void update(float dt) {
+        doorUnlockedThisFrame = false;
         updatePlayerMovement(dt);
         updateEnemies(dt);
+        updateNeutrals();
         updateProjectileSources(dt);
         updateProjectiles(dt);
         updateWorldKeys();
@@ -151,6 +172,7 @@ public class SpriteManager {
         boolean blocked = levelManager.isBlocked(player.getRect(), player.hasKey());
         if (levelManager.consumeDoorUnlockEvent()) {
             player.removeKey();
+            doorUnlockedThisFrame = true;
         }
 
         if (blocked) {
@@ -169,6 +191,15 @@ public class SpriteManager {
             enemy.updateBehavior(player, dt, levelManager);
             if (enemy.isDead()) {
                 enemies.removeIndex(i);
+            }
+        }
+    }
+
+    private void updateNeutrals() {
+        for (int i = neutrals.size - 1; i >= 0; i--) {
+            Neutral neutral = neutrals.get(i);
+            if (neutral.isDead()) {
+                neutrals.removeIndex(i);
             }
         }
     }

@@ -23,6 +23,10 @@ public class Player extends Character implements Disposable {
         return coinsInInventory;
     }
 
+    public int getKeysInInventory() {
+        return keysInInventory;
+    }
+
     private int coinsInInventory;
 
     public int price;
@@ -78,7 +82,9 @@ public class Player extends Character implements Disposable {
     }
 
     public void removeKey() {
-        if (keysInInventory > 0) keysInInventory -=1;
+        if (keysInInventory > 0) {
+            keysInInventory -=1;
+        }
     }
 
     public void getCoin(Coin coin){

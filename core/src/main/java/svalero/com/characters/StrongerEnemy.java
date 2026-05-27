@@ -1,6 +1,5 @@
 package svalero.com.characters;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -13,11 +12,11 @@ import svalero.com.managers.SpriteManager;
 
 import static svalero.com.utils.Constants.TILE_SIZE_PX;
 
-public class Enemy extends Character implements Disposable {
+public class StrongerEnemy extends Character implements Disposable {
 
     private static final float CHASE_SPEED_PX_PER_SEC = 24f;
-    private static final float ATTACK_COOLDOWN_SEC = 0.3f;
-    private static final float AGGRO_DISTANCE_PX = 5f * TILE_SIZE_PX;
+    private static final float ATTACK_COOLDOWN_SEC = 0.6f;
+    private static final float AGGRO_DISTANCE_PX = 12f * TILE_SIZE_PX;
     private static final float AGGRO_DISTANCE_PX_SQUARED = AGGRO_DISTANCE_PX * AGGRO_DISTANCE_PX;
 
     private final Animation<TextureRegion> idleAnimation;
@@ -26,37 +25,29 @@ public class Enemy extends Character implements Disposable {
     private final Animation<TextureRegion> damagedAnimation;
     private final Animation<TextureRegion> deathAnimation;
 
-
     private float attackCooldown;
     private float attackTimer;
     private float damagedTimer;
     private float deathTimer;
     private boolean dying;
 
-    public Enemy(
-        Vector2 position,
-        SpriteManager spriteManager,
-        int maxLives,
-        Animation<TextureRegion> idleAnimation,
-        Animation<TextureRegion> movementAnimation,
-        Animation<TextureRegion> attackAnimation,
-        Animation<TextureRegion> damagedAnimation,
-        Animation<TextureRegion> deathAnimation
-    ) {
-        super(position, spriteManager, idleAnimation);
+    public StrongerEnemy(Vector2 position,
+                         SpriteManager spriteManager,
+                         int maxLives,
+                         Animation<TextureRegion> animation,
+                         Animation<TextureRegion> idleAnimation,
+                         Animation<TextureRegion> movementAnimation,
+                         Animation<TextureRegion> attackAnimation,
+                         Animation<TextureRegion> damagedAnimation,
+                         Animation<TextureRegion> deathAnimation) {
+
+        super(position, spriteManager, animation);
         this.idleAnimation = idleAnimation;
         this.movementAnimation = movementAnimation;
         this.attackAnimation = attackAnimation;
         this.damagedAnimation = damagedAnimation;
         this.deathAnimation = deathAnimation;
-        lives = maxLives;
-        attackCooldown = 0f;
-        attackTimer = 0f;
-        damagedTimer = 0f;
-        deathTimer = 0f;
-        dying = false;
     }
-
 
     @Override
     public void render(Batch batch) {
