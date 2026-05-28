@@ -42,6 +42,7 @@ public class Player extends Character implements Disposable {
     public Player(Vector2 position, SpriteManager spriteManager, Animation<TextureRegion> playerAnimation) {
         super(position, spriteManager, playerAnimation);
         setRenderScale(PLAYER_RENDER_SCALE);
+        configureHitbox(0.68f, 0.72f, 0.16f, 0.08f);
         lives = 3;
         isBoosted = false;
         boostTimeRemainingSec = 0f;
@@ -100,10 +101,6 @@ public class Player extends Character implements Disposable {
         if(coinsInInventory > 0) coinsInInventory -= price;
     }
 
-    public void getsBoost(){
-        isBoosted = true;
-        boostTimeRemainingSec = PLAYER_BOOST_DURATION_SEC;
-    }
 
     public boolean hasBoost(){
         return isBoosted && boostTimeRemainingSec > 0f;

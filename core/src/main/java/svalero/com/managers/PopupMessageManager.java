@@ -100,6 +100,13 @@ public class PopupMessageManager implements Disposable {
         return popupTable.isVisible();
     }
 
+    public void clear() {
+        popupTable.setVisible(false);
+        popupTable.clearActions();
+        queue.clear();
+        currentDismissKeys = null;
+    }
+
     public void onResize() {
         if (!isVisible()) return;
         relayoutCurrentPopup();
