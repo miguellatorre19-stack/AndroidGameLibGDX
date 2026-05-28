@@ -3,6 +3,7 @@ package svalero.com.managers;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -11,6 +12,7 @@ import svalero.com.characters.Enemy;
 import svalero.com.characters.Neutral;
 import svalero.com.characters.Player;
 import svalero.com.characters.Projectile;
+import svalero.com.characters.StrongerEnemy;
 import svalero.com.items.Coin;
 import svalero.com.items.Key;
 
@@ -32,6 +34,7 @@ public class SpriteManager {
     private final Array<Key> worldKeys;
     private final Array<Coin> worldCoins;
     private final Array<Enemy> enemies;
+    private final Array<StrongerEnemy> strongerEnemies;
     private final Array<Neutral> neutrals;
     private final Array<Projectile> projectiles;
     private final Array<ProjectileSource> projectileSources;
@@ -45,6 +48,7 @@ public class SpriteManager {
         worldKeys = new Array<>();
         worldCoins = new Array<>();
         enemies = new Array<>();
+        strongerEnemies = new Array<>();
         neutrals = new Array<>();
         projectiles = new Array<>();
         projectileSources = new Array<>();
@@ -82,6 +86,10 @@ public class SpriteManager {
         enemies.add(enemy);
     }
 
+    public void addStrongerEnemy(StrongerEnemy strongerEnemy) {
+        strongerEnemies.add(strongerEnemy);
+    }
+
     public void addNeutral (Neutral neutral){
         neutrals.add(neutral);
     }
@@ -94,6 +102,33 @@ public class SpriteManager {
         source.timerSec = 0f;
         source.fromPlayer = fromPlayer;
         projectileSources.add(source);
+    }
+
+    public void clearLevelEntities() {
+        for (Key key : worldKeys) {
+            key.dispose();
+        }
+        worldKeys.clear();
+
+        for (Coin coin : worldCoins) {
+            coin.dispose();
+        }
+        worldCoins.clear();
+
+        for (Enemy enemy : enemies) {
+            enemy.dispose();
+        }
+        enemies.clear();
+
+        for (StrongerEnemy strongerEnemy : strongerEnemies) {
+            strongerEnemy.dispose();
+        }
+        strongerEnemies.clear();
+
+        neutrals.clear();
+        projectiles.clear();
+        projectileSources.clear();
+        doorUnlockedThisFrame = false;
     }
 
     // ----- Read-only collections for rendering -----
@@ -110,18 +145,16 @@ public class SpriteManager {
         return enemies;
     }
 
+    public Array<StrongerEnemy> getStrongerEnemies() {
+        return strongerEnemies;
+    }
+
     public Array<Neutral> getNeutrals() {
         return neutrals;
     }
 
     public Array<Projectile> getProjectiles() {
         return projectiles;
-    }
-
-    public boolean consumeDoorUnlockedEvent() {
-        boolean unlocked = doorUnlockedThisFrame;
-        doorUnlockedThisFrame = false;
-        return unlocked;
     }
 
     // ----- Per-frame update -----
@@ -135,6 +168,7 @@ public class SpriteManager {
         doorUnlockedThisFrame = false;
         updatePlayerMovement(dt);
         updateEnemies(dt);
+        updateStrongerEnemies(dt);
         updateNeutrals();
         updateProjectileSources(dt);
         updateProjectiles(dt);
@@ -161,15 +195,19 @@ public class SpriteManager {
     private void movePlayerAxis(float movement, boolean axisX) {
         if (movement == 0f) return;
 
+        if (axisX) {
+            player.updateFacingFromMovement(movement);
+        }
+
         float previous = axisX ? player.getPosition().x : player.getPosition().y;
         if (axisX) {
             player.getPosition().x += movement;
         } else {
             player.getPosition().y += movement;
         }
-        player.getRect().setPosition(player.getPosition().x, player.getPosition().y);
+        player.syncHitboxFromPosition();
 
-        boolean blocked = levelManager.isBlocked(player.getRect(), player.hasKey());
+        boolean blocked = levelManager.isBlocked(player.getHitbox(), player.getRect(), player.hasKey());
         if (levelManager.consumeDoorUnlockEvent()) {
             player.removeKey();
             doorUnlockedThisFrame = true;
@@ -181,7 +219,7 @@ public class SpriteManager {
             } else {
                 player.getPosition().y = previous;
             }
-            player.getRect().setPosition(player.getPosition().x, player.getPosition().y);
+            player.syncHitboxFromPosition();
         }
     }
 
@@ -200,6 +238,16 @@ public class SpriteManager {
             Neutral neutral = neutrals.get(i);
             if (neutral.isDead()) {
                 neutrals.removeIndex(i);
+            }
+        }
+    }
+
+    private void updateStrongerEnemies(float dt) {
+        for (int i = strongerEnemies.size - 1; i >= 0; i--) {
+            StrongerEnemy strongerEnemy = strongerEnemies.get(i);
+            strongerEnemy.updateBehavior(player, dt, levelManager);
+            if (strongerEnemy.isDead()) {
+                strongerEnemies.removeIndex(i);
             }
         }
     }
@@ -225,43 +273,54 @@ public class SpriteManager {
             projectile.update(dt);
 
             Rectangle bounds = projectile.getBounds();
-            if (levelManager.isBlocked(bounds, false)) {
+            if (levelManager.isBlocked(projectile.getHitbox(), bounds, false)) {
                 projectiles.removeIndex(i);
                 continue;
             }
 
             if (projectile.isFromPlayer()) {
-                if (hitsAnyEnemy(bounds)) {
-                    damageEnemiesAt(bounds);
+                if (hitsAnyEnemy(projectile)) {
+                    damageEnemiesAt(projectile);
                     projectiles.removeIndex(i);
                 }
                 continue;
             }
 
-            if (!player.isDead() && player.getRect().overlaps(bounds)) {
+            if (!player.isDead() && Intersector.overlapConvexPolygons(player.getHitbox(), projectile.getHitbox())) {
                 player.affected();
                 projectiles.removeIndex(i);
                 continue;
             }
-            if (hitsAnyEnemy(bounds)) {
-                damageEnemiesAt(bounds);
+            if (hitsAnyEnemy(projectile)) {
+                damageEnemiesAt(projectile);
                 projectiles.removeIndex(i);
             }
         }
     }
 
-    public void damageEnemiesAt(Rectangle projectileBounds) {
+    public void damageEnemiesAt(Projectile projectile) {
         for (Enemy enemy : enemies) {
-            if (!enemy.isDead() && enemy.getRect().overlaps(projectileBounds)) {
+            if (!enemy.isDead() && Intersector.overlapConvexPolygons(enemy.getHitbox(), projectile.getHitbox())) {
                 enemy.onProjectileHit();
+                return;
+            }
+        }
+        for (StrongerEnemy strongerEnemy : strongerEnemies) {
+            if (!strongerEnemy.isDead() && Intersector.overlapConvexPolygons(strongerEnemy.getHitbox(), projectile.getHitbox())) {
+                strongerEnemy.onProjectileHit();
                 return;
             }
         }
     }
 
-    private boolean hitsAnyEnemy(Rectangle bounds) {
+    private boolean hitsAnyEnemy(Projectile projectile) {
         for (Enemy enemy : enemies) {
-            if (!enemy.isDead() && enemy.getRect().overlaps(bounds)) {
+            if (!enemy.isDead() && Intersector.overlapConvexPolygons(enemy.getHitbox(), projectile.getHitbox())) {
+                return true;
+            }
+        }
+        for (StrongerEnemy strongerEnemy : strongerEnemies) {
+            if (!strongerEnemy.isDead() && Intersector.overlapConvexPolygons(strongerEnemy.getHitbox(), projectile.getHitbox())) {
                 return true;
             }
         }

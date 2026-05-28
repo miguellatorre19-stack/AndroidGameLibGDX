@@ -10,7 +10,7 @@ import svalero.com.managers.ResourceManager;
 
 public class Key extends Item implements Disposable {
 
-    private static final String ATLAS_ID = ResourceManager.GENERAL_ATLAS_ID;
+    private static final String ATLAS_ID = ResourceManager.ITEMS_ATLAS_ID;
     private static final String KEY_IDLE_REGION = "keys_1";
     private static final float KEY_FRAME_DURATION = 0.12f;
 

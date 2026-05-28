@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="16" height="16" tilewidth="16" tileheight="16" infinite="0" nextlayerid="9" nextobjectid="79">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="16" height="16" tilewidth="16" tileheight="16" infinite="0" nextlayerid="9" nextobjectid="87">
  <tileset firstgid="1" source="tilesets/Level1_DungeonEnvironment.tsx"/>
  <tileset firstgid="1025" source="tilesets/Dungeon_Tileset.tsx"/>
  <layer id="1" name="floor" width="16" height="16">
@@ -46,8 +46,8 @@
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,1100,0,1100,0,1115,0,0,
 0,1118,0,0,0,0,0,0,0,0,0,0,0,0,1102,0,
-0,0,0,1109,0,0,0,0,0,0,0,0,0,0,0,0,
-0,454,0,0,0,0,0,1118,0,0,0,0,0,0,2147484764,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,1118,0,0,0,0,0,0,2147484764,0,
 0,0,0,0,0,0,0,0,0,0,0,1102,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,2147484764,0,
@@ -56,80 +56,56 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,1063,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
  <objectgroup id="3" name="colisions">
-  <object id="6" name="cofre1" type="cofre" x="194.902" y="131.022" width="10.1087" height="10.0435"/>
-  <object id="7" name="cofre1" type="cofre" x="210.891" y="130.978" width="10.1087" height="9.98913"/>
-  <object id="8" name="cofre2" type="cofre" x="212.043" y="37.7609" width="8.20652" height="6.98913"/>
-  <object id="11" name="cofre3" type="cofre" x="50" y="36.9375" width="12.5" height="8.5625"/>
-  <object id="35" name="door2" type="door" x="48.25" y="80.75" width="31.5" height="15">
+  <object id="35" name="door2" class="door" x="48.25" y="80.75" width="31.5" height="15">
    <properties>
     <property name="doorID" value="second_door"/>
     <property name="requiresKey" type="bool" value="true"/>
    </properties>
   </object>
-  <object id="36" name="door1" type="door" x="112.75" y="161" width="31.5" height="14.75">
+  <object id="36" name="door1" class="door" x="112.75" y="161" width="31.5" height="14.75">
    <properties>
     <property name="doorID" value="first_door"/>
     <property name="requiresKey" type="bool" value="true"/>
    </properties>
   </object>
-  <object id="39" x="9.5" y="0.75" width="236.75" height="15.25"/>
-  <object id="41" x="9.75" y="160.25" width="102.25" height="16.75"/>
-  <object id="42" x="9" y="16.25" width="6.75" height="143.75"/>
-  <object id="43" x="105.5" y="16.75" width="6.25" height="63.75"/>
-  <object id="44" x="16.75" y="80.5" width="30.75" height="15.75"/>
-  <object id="45" x="73.25" y="177.25" width="6.5" height="46.5"/>
-  <object id="46" x="73.5" y="224.25" width="110.25" height="17"/>
-  <object id="47" x="176.75" y="177.5" width="7.25" height="46.25"/>
-  <object id="49" x="240.5" y="16.75" width="6" height="47.25"/>
-  <object id="69" x="144.875" y="159.875" width="102.25" height="16.75"/>
-  <object id="71" name="salida" x="98.75" y="196" width="10.5" height="8.75"/>
-  <object id="75" x="241" y="96.125" width="6" height="63"/>
-  <object id="76" name="door3" type="door" x="240.25" y="64.875" width="6" height="29.75">
+  <object id="76" name="door3" class="door" x="240.25" y="64.875" width="6" height="29.75">
    <properties>
     <property name="doorID" value="third_door"/>
     <property name="requiresKey" type="bool" value="true"/>
    </properties>
   </object>
-  <object id="77" x="80.375" y="80.625" width="31.5" height="15.5"/>
+  <object id="79" class="solid" x="0" y="0">
+   <polygon points="0,0 256,0 256,64 240,64 240,16 112,16 112,96 80,96 80,80 96,80 96,16 16,16 16,80 48,80 48,96 16,96 16,160 112,160 112,176 0,176"/>
+  </object>
+  <object id="80" x="240" y="96">
+   <polygon points="0,0 16,0 16,80 -96,80 -96,64 0,64"/>
+  </object>
+  <object id="81" class="solid" x="64" y="176">
+   <polygon points="0,0 0,64 128,64 128,0 112,0 112,48 16,48 16,0"/>
+  </object>
  </objectgroup>
  <objectgroup id="5" name="objetos">
-  <object id="62" x="50.25" y="34.5625" width="11.75" height="4.875">
-   <properties>
-    <property name="isOpen?" type="bool" value="false"/>
-   </properties>
+  <object id="82" x="112" y="48">
+   <polygon points="0,0 16,0 16,16 0,16"/>
   </object>
-  <object id="63" x="213.489" y="35.8261" width="4.92391" height="3.19565">
-   <properties>
-    <property name="isOpen?" type="bool" value="false"/>
-   </properties>
+  <object id="83" x="32" y="112">
+   <polygon points="0,0 16,0 16,16 0,16"/>
   </object>
-  <object id="64" x="197.489" y="129.815" width="4.70652" height="4.26087">
-   <properties>
-    <property name="isOpen?" type="bool" value="false"/>
-   </properties>
+  <object id="84" x="16" y="16">
+   <polygon points="0,0 0,16 16,16 16,0"/>
   </object>
-  <object id="65" x="213.478" y="129.598" width="4.97826" height="4.36957">
-   <properties>
-    <property name="isOpen?" type="bool" value="false"/>
-   </properties>
+  <object id="85" class="chest" x="48" y="32">
+   <polygon points="0,0 16,0 16,16 0,16 0,0"/>
   </object>
-  <object id="72" name="chandelier" x="116" y="50" width="8.25" height="15">
-   <properties>
-    <property name="other" type="object" value="74"/>
-   </properties>
-  </object>
-  <object id="74" name="chandelier" x="36.875" y="117.5" width="8.25" height="11.75"/>
-  <object id="78" name="chandelier" x="20.125" y="19" width="8.25" height="15">
-   <properties>
-    <property name="other" type="object" value="74"/>
-   </properties>
+  <object id="86" class="chest" x="176" y="128">
+   <polygon points="0,0 16,0 16,16 0,16"/>
   </object>
  </objectgroup>
  <objectgroup id="6" name="enemigos"/>

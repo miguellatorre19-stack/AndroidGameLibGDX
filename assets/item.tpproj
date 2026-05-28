@@ -34,7 +34,7 @@ prettyPrint=false
 legacyOutput=false
 
 scaleFactors=[{suffix:"",factor:1,resampling:bicubic}]
-inputFiles=[{path:2D_Pixel_Dungeon_Asset_Pack/items and trap_animation/coin,type:Input,dirFilePrefix:null,recursive:false,flattenPaths:false},{path:2D_Pixel_Dungeon_Asset_Pack/items and trap_animation/box_1,type:Input,dirFilePrefix:null,recursive:false,flattenPaths:false}]
+inputFiles=[{path:2D_Pixel_Dungeon_Asset_Pack/items and trap_animation/coin,type:Input,dirFilePrefix:null,recursive:false,flattenPaths:false},{path:2D_Pixel_Dungeon_Asset_Pack/items and trap_animation/box_1,type:Input,dirFilePrefix:null,recursive:false,flattenPaths:false},{path:2D_Pixel_Dungeon_Asset_Pack/items and trap_animation/keys,type:Input,dirFilePrefix:null,recursive:false,flattenPaths:false}]
 keepInputFileExtensions=false
 
 

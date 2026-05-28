@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
@@ -25,7 +26,6 @@ public class Enemy extends Character implements Disposable {
     private final Animation<TextureRegion> attackAnimation;
     private final Animation<TextureRegion> damagedAnimation;
     private final Animation<TextureRegion> deathAnimation;
-
 
     private float attackCooldown;
     private float attackTimer;
@@ -113,7 +113,7 @@ public class Enemy extends Character implements Disposable {
 
         boolean moved = chasePlayer(player, dt, levelManager);
 
-        if (rect.overlaps(player.getRect()) && attackCooldown <= 0f) {
+        if (Intersector.overlapConvexPolygons(hitbox, player.getHitbox()) && attackCooldown <= 0f) {
             attack();
             player.affected();
             attackCooldown = ATTACK_COOLDOWN_SEC;
@@ -177,28 +177,29 @@ public class Enemy extends Character implements Disposable {
 
     private void moveWithCollision(float moveX, float moveY, LevelManager levelManager) {
         if (moveX != 0f) {
+            updateFacingFromMovement(moveX);
             float oldX = position.x;
             position.x += moveX;
-            rect.setPosition(position.x, position.y);
-            if (levelManager != null && levelManager.isBlocked(rect, false)) {
+            syncHitboxFromPosition();
+            if (levelManager != null && levelManager.isBlocked(hitbox, rect, false)) {
                 position.x = oldX;
-                rect.setPosition(position.x, position.y);
+                syncHitboxFromPosition();
             }
         }
 
         if (moveY != 0f) {
             float oldY = position.y;
             position.y += moveY;
-            rect.setPosition(position.x, position.y);
-            if (levelManager != null && levelManager.isBlocked(rect, false)) {
+            syncHitboxFromPosition();
+            if (levelManager != null && levelManager.isBlocked(hitbox, rect, false)) {
                 position.y = oldY;
-                rect.setPosition(position.x, position.y);
+                syncHitboxFromPosition();
             }
         }
 
         position.x = MathUtils.clamp(position.x, 0f, Float.MAX_VALUE);
         position.y = MathUtils.clamp(position.y, 0f, Float.MAX_VALUE);
-        rect.setPosition(position.x, position.y);
+        syncHitboxFromPosition();
     }
 
     private void setAnimation(Animation<TextureRegion> nextAnimation, boolean restart) {
