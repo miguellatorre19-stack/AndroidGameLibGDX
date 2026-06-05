@@ -17,6 +17,9 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import svalero.com.items.PowerUpType;
+
+import java.util.EnumMap;
 
 import static svalero.com.utils.Constants.SCREEN_HEIGHT;
 import static svalero.com.utils.Constants.SCREEN_WIDTH;
@@ -32,6 +35,7 @@ public class HudManager implements Disposable {
     private static final float FONT_SCALE = 1.35f;
     private static final float BOOST_BAR_WIDTH = 170f;
     private static final float BOOST_BAR_HEIGHT = 16f;
+    private static final float POWER_UP_ICON_SIZE = 24f;
 
 
     public Stage stage;
@@ -56,6 +60,8 @@ public class HudManager implements Disposable {
     private BitmapFont hudFont;
     private Texture coinSymbol;
     private BoostBarActor boostBar;
+    private final EnumMap<PowerUpType, Label> powerUpLabels;
+    private final EnumMap<PowerUpType, Texture> powerUpTextures;
 
     public static Label getScoreLabel() {
         return scoreLabel;
@@ -84,6 +90,8 @@ public class HudManager implements Disposable {
         stage = new Stage(viewport, sb);
         fullHeartTexture = new Texture("hud/Life/Heart.png");
         emptyHeartTexture = new Texture("hud/Life/Heart1.png");
+        powerUpLabels = new EnumMap<>(PowerUpType.class);
+        powerUpTextures = new EnumMap<>(PowerUpType.class);
         fullHeartRegion = new TextureRegion(fullHeartTexture);
         emptyHeartRegion = new TextureRegion(emptyHeartTexture);
         hudFont = new BitmapFont();
@@ -116,8 +124,38 @@ public class HudManager implements Disposable {
         boostBar = new BoostBarActor(boostAnimation, BOOST_BAR_WIDTH, BOOST_BAR_HEIGHT);
         boostBar.setVisible(false);
         table.add(boostBar).right().width(BOOST_BAR_WIDTH).height(BOOST_BAR_HEIGHT);
+        table.row();
+        table.add(buildPowerUpTable()).right();
 
         stage.addActor(table);
+    }
+
+    private Table buildPowerUpTable() {
+        Table powerUpTable = new Table();
+        powerUpTable.defaults().left().padBottom(4f);
+
+        addPowerUpRow(powerUpTable, PowerUpType.SPEED, "hud/Green_Potion.png");
+        powerUpTable.row();
+        addPowerUpRow(powerUpTable, PowerUpType.SHIELD, "hud/Blue_Potion.png");
+        powerUpTable.row();
+        addPowerUpRow(powerUpTable, PowerUpType.MASTER_KEY, "hud/Red_Potion.png");
+        return powerUpTable;
+    }
+
+    private void addPowerUpRow(Table table, PowerUpType type, String texturePath) {
+        Texture texture = new Texture(texturePath);
+        texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        powerUpTextures.put(type, texture);
+
+        Label label = new Label("", new Label.LabelStyle(hudFont, Color.valueOf("EAF2FF")));
+        label.setFontScale(0.8f);
+        powerUpLabels.put(type, label);
+        setPowerUp(type, 0, 0f);
+
+        table.add(new Image(new TextureRegionDrawable(new TextureRegion(texture))))
+            .size(POWER_UP_ICON_SIZE, POWER_UP_ICON_SIZE)
+            .padRight(6f);
+        table.add(label).minWidth(120f);
     }
 
     public void update(float dt){
@@ -166,12 +204,23 @@ public class HudManager implements Disposable {
         boostBar.setVisible(boosted && progress01 > 0f);
     }
 
+    public void setPowerUp(PowerUpType type, int count, float remainingSec) {
+        Label label = powerUpLabels.get(type);
+        if (label == null) return;
+
+        String timerText = remainingSec > 0f ? String.format(" %.1fs", remainingSec) : "";
+        label.setText(String.format("[%s] x%02d%s", type.activationLabel(), count, timerText));
+    }
+
     @Override
     public void dispose() {
         stage.dispose();
         hudFont.dispose();
         fullHeartTexture.dispose();
         emptyHeartTexture.dispose();
+        for (Texture texture : powerUpTextures.values()) {
+            texture.dispose();
+        }
     }
 
     private static class BoostBarActor extends Actor {

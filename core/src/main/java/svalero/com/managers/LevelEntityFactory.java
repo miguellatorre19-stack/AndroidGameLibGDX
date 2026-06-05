@@ -14,6 +14,10 @@ import svalero.com.characters.enemy.EnemyConfig;
 import svalero.com.characters.enemy.StrongerEnemy;
 import svalero.com.items.Coin;
 import svalero.com.items.Key;
+import svalero.com.items.PowerUp;
+import svalero.com.items.PowerUpType;
+
+import static svalero.com.utils.Constants.TILE_SIZE_PX;
 
 public final class LevelEntityFactory {
     private static final String ATLAS_ID = ResourceManager.GENERAL_ATLAS_ID;
@@ -61,13 +65,14 @@ public final class LevelEntityFactory {
     private void spawnEnemy(MapObject object, Vector2 position) {
         String enemyType = readNormalizedString(object, "enemyType");
         int lives = readInt(object, "lives", isStrongEnemyType(enemyType) ? 5 : 3);
+        EnemyConfig config = readEnemyConfig(object, isStrongEnemyType(enemyType), lives);
 
         if (isStrongEnemyType(enemyType)) {
             EnemyAnimationSet vampire = assets.vampire();
             spriteManager.addStrongerEnemy(new StrongerEnemy(
                 position,
                 spriteManager,
-                EnemyConfig.stronger(lives),
+                config,
                 vampire.idle(),
                 vampire.movement(),
                 vampire.attack(),
@@ -81,7 +86,7 @@ public final class LevelEntityFactory {
         spriteManager.addEnemy(new Enemy(
             position,
             spriteManager,
-            EnemyConfig.skeleton(lives),
+            config,
             skeleton.idle(),
             skeleton.movement(),
             skeleton.attack(),
@@ -96,6 +101,17 @@ public final class LevelEntityFactory {
             || "stronger_enemy".equals(enemyType);
     }
 
+    private EnemyConfig readEnemyConfig(MapObject object, boolean strongEnemy, int lives) {
+        EnemyConfig baseConfig = strongEnemy ? EnemyConfig.stronger(lives) : EnemyConfig.skeleton(lives);
+        return new EnemyConfig(
+            lives,
+            readFloat(object, "moveSpeed", baseConfig.chaseSpeedPxPerSec()),
+            readFloat(object, "attackCooldown", baseConfig.attackCooldownSec()),
+            readDistancePx(object, "aggroDistance", "aggroTiles", baseConfig.aggroDistancePx()),
+            readDistancePx(object, "patrolRadius", "patrolTiles", baseConfig.patrolRadiusPx())
+        );
+    }
+
     private void spawnItem(MapObject object, Vector2 position) {
         String itemType = readNormalizedString(object, "itemType");
         if ("key".equals(itemType)) {
@@ -104,6 +120,14 @@ public final class LevelEntityFactory {
         }
         if ("coin".equals(itemType)) {
             spriteManager.addWorldCoin(new Coin(position));
+            return;
+        }
+
+        PowerUpType powerUpType = "powerup".equals(itemType)
+            ? PowerUpType.fromId(readNormalizedString(object, "powerUpType"))
+            : PowerUpType.fromId(itemType);
+        if (powerUpType != null) {
+            spriteManager.addWorldPowerUp(new PowerUp(powerUpType, position));
         }
     }
 
@@ -202,6 +226,16 @@ public final class LevelEntityFactory {
         } catch (NumberFormatException ignored) {
             return defaultValue;
         }
+    }
+
+    private static float readDistancePx(MapObject object, String pixelKey, String tileKey, float defaultValue) {
+        if (object.getProperties().containsKey(pixelKey)) {
+            return readFloat(object, pixelKey, defaultValue);
+        }
+        if (object.getProperties().containsKey(tileKey)) {
+            return readFloat(object, tileKey, defaultValue / TILE_SIZE_PX) * TILE_SIZE_PX;
+        }
+        return defaultValue;
     }
 
     private static boolean readBoolean(MapObject object, String key, boolean defaultValue) {

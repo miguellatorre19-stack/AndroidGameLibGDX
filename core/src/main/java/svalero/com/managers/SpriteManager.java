@@ -15,6 +15,8 @@ import svalero.com.characters.Projectile;
 import svalero.com.characters.enemy.StrongerEnemy;
 import svalero.com.items.Coin;
 import svalero.com.items.Key;
+import svalero.com.items.PowerUp;
+import svalero.com.items.PowerUpType;
 
 public class SpriteManager {
     private static final float PROJECTILE_SPEED_PX_PER_SEC = 120f;
@@ -36,6 +38,7 @@ public class SpriteManager {
 
     private final Array<Key> worldKeys;
     private final Array<Coin> worldCoins;
+    private final Array<PowerUp> worldPowerUps;
     private final Array<Enemy> enemies;
     private final Array<StrongerEnemy> strongerEnemies;
     private final Array<Enemy> enemiesForAvoidance;
@@ -51,6 +54,7 @@ public class SpriteManager {
         this.game = game;
         worldKeys = new Array<>();
         worldCoins = new Array<>();
+        worldPowerUps = new Array<>();
         enemies = new Array<>();
         strongerEnemies = new Array<>();
         enemiesForAvoidance = new Array<>();
@@ -85,6 +89,10 @@ public class SpriteManager {
 
     public void addWorldCoin(Coin coin) {
         worldCoins.add(coin);
+    }
+
+    public void addWorldPowerUp(PowerUp powerUp) {
+        worldPowerUps.add(powerUp);
     }
 
     public void addEnemy(Enemy enemy) {
@@ -131,6 +139,11 @@ public class SpriteManager {
         }
         worldCoins.clear();
 
+        for (PowerUp powerUp : worldPowerUps) {
+            powerUp.dispose();
+        }
+        worldPowerUps.clear();
+
         for (Enemy enemy : enemies) {
             enemy.dispose();
         }
@@ -156,6 +169,10 @@ public class SpriteManager {
 
     public Array<Coin> getWorldCoins() {
         return worldCoins;
+    }
+
+    public Array<PowerUp> getWorldPowerUps() {
+        return worldPowerUps;
     }
 
     public Array<Enemy> getEnemies() {
@@ -185,6 +202,7 @@ public class SpriteManager {
         doorUnlockedThisFrame = false;
         if (player != null) {
             player.updateStun(dt);
+            updatePowerUpInput();
         }
         updatePlayerMovement(dt);
         rebuildEnemiesForAvoidance();
@@ -195,6 +213,15 @@ public class SpriteManager {
         updateProjectiles(dt);
         updateWorldKeys();
         updateWorldCoins();
+        updateWorldPowerUps();
+    }
+
+    private void updatePowerUpInput() {
+        for (PowerUpType type : PowerUpType.values()) {
+            if (Gdx.input.isKeyJustPressed(type.activationKey())) {
+                player.activatePowerUp(type);
+            }
+        }
     }
 
     private void updatePlayerMovement(float dt) {
@@ -229,9 +256,12 @@ public class SpriteManager {
         }
         player.syncHitboxFromPosition();
 
-        boolean blocked = levelManager.isBlocked(player.getHitbox(), player.getRect(), player.hasKey());
+        boolean usingMasterKey = player.hasMasterKeyActive();
+        boolean blocked = levelManager.isBlocked(player.getHitbox(), player.getRect(), player.hasKey() || usingMasterKey);
         if (levelManager.consumeDoorUnlockEvent()) {
-            player.removeKey();
+            if (!usingMasterKey) {
+                player.removeKey();
+            }
             doorUnlockedThisFrame = true;
         }
 
@@ -407,6 +437,17 @@ public class SpriteManager {
             if (coin.isCollected()) {
                 coin.dispose();
                 worldCoins.removeIndex(i);
+            }
+        }
+    }
+
+    private void updateWorldPowerUps() {
+        for (int i = worldPowerUps.size - 1; i >= 0; i--) {
+            PowerUp powerUp = worldPowerUps.get(i);
+            player.getPowerUp(powerUp);
+            if (powerUp.isCollected()) {
+                powerUp.dispose();
+                worldPowerUps.removeIndex(i);
             }
         }
     }

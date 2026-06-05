@@ -27,6 +27,7 @@ class EnemyAIController {
     private static final float SEPARATION_RADIUS_PX = 12f;
     private static final float SEPARATION_STRENGTH = 0.9f;
     private static final float PATROL_STUCK_SWITCH_SEC = 0.45f;
+    private static final float NAVIGATION_AGENT_SIZE_PX = TILE_SIZE_PX * 0.7f;
 
     private final Enemy owner;
     private final float chaseSpeedPxPerSec;
@@ -322,8 +323,8 @@ class EnemyAIController {
         navigationLevelIndex = currentLevelIndex;
         navigationGrid = new EnemyNavigationGrid(
             currentLevelManager,
-            owner.aiRect().width,
-            owner.aiRect().height
+            Math.min(owner.aiRect().width, NAVIGATION_AGENT_SIZE_PX),
+            Math.min(owner.aiRect().height, NAVIGATION_AGENT_SIZE_PX)
         );
         pathFinder = new com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder<>(navigationGrid);
         clearPath();

@@ -13,6 +13,7 @@ import svalero.com.characters.Projectile;
 import svalero.com.characters.enemy.StrongerEnemy;
 import svalero.com.items.Coin;
 import svalero.com.items.Key;
+import svalero.com.items.PowerUp;
 
 //contiene el código que permite el renderizado (o pintado) de todos los elementos del juego en la pantalla.
 // Los cálculos de dónde pintar a cada elemento del juego los realiza el SpriteManager
@@ -48,6 +49,10 @@ public class RenderManager implements Disposable {
 
         for (Coin coin : spriteManager.getWorldCoins()) {
             coin.render(batch);
+        }
+
+        for (PowerUp powerUp : spriteManager.getWorldPowerUps()) {
+            powerUp.render(batch);
         }
 
         spriteManager.player.render(batch);

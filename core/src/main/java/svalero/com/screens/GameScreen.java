@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import svalero.com.KeyFinder;
 import svalero.com.characters.Neutral;
 import svalero.com.characters.Player;
+import svalero.com.items.PowerUpType;
 import svalero.com.managers.AudioManager;
 import svalero.com.managers.CameraManager;
 import svalero.com.managers.HudManager;
@@ -76,6 +77,7 @@ public class GameScreen implements Screen {
         hudManager.setLives(player.getLives());
         hudManager.setKeys(player.getKeysInInventory());
         hudManager.setCoins(player.getCoinsInInventory());
+        updatePowerUpHud();
 
         audioManager.loadMusic("level_music", "audio/music/xDeviruchi - Mysterious Dungeon.wav");
         audioManager.setSoundEnabled(true);
@@ -142,8 +144,18 @@ public class GameScreen implements Screen {
         hudManager.setLives(player.getLives());
         hudManager.setKeys(player.getKeysInInventory());
         hudManager.setCoins(player.getCoinsInInventory());
-        hudManager.setBoost(player.hasBoost(), player.getBoostProgress01());
+        updatePowerUpHud();
         handleNeutralNpcPopupFlow();
+    }
+
+    private void updatePowerUpHud() {
+        for (PowerUpType type : PowerUpType.values()) {
+            hudManager.setPowerUp(
+                type,
+                player.getPowerUpCount(type),
+                player.getPowerUpTimeRemainingSec(type)
+            );
+        }
     }
 
     private void togglePause() {
