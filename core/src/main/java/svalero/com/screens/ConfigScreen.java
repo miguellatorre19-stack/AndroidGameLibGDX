@@ -204,6 +204,5 @@ public class ConfigScreen implements Screen {
             stage.dispose();
             stage = null;
         }
-        VisUI.dispose();
     }
 }

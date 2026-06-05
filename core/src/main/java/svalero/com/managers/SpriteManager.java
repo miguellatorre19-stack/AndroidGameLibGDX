@@ -8,23 +8,28 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import svalero.com.KeyFinder;
-import svalero.com.characters.Enemy;
+import svalero.com.characters.enemy.Enemy;
 import svalero.com.characters.Neutral;
 import svalero.com.characters.Player;
 import svalero.com.characters.Projectile;
-import svalero.com.characters.StrongerEnemy;
+import svalero.com.characters.enemy.StrongerEnemy;
 import svalero.com.items.Coin;
 import svalero.com.items.Key;
+import svalero.com.items.PowerUp;
+import svalero.com.items.PowerUpType;
 
 public class SpriteManager {
     private static final float PROJECTILE_SPEED_PX_PER_SEC = 120f;
     private static final float MIN_PROJECTILE_INTERVAL_SEC = 0.05f;
+    private static final float PROJECTILE_SOURCE_EXIT_OFFSET_PX = 8f;
+    private static final int PROJECTILE_SPAWN_CLEARANCE_ATTEMPTS = 4;
 
     private static class ProjectileSource {
         Vector2 origin;
         Vector2 direction;
         float intervalSec;
         float timerSec;
+        float speedPxPerSec;
         boolean fromPlayer;
     }
 
@@ -33,8 +38,10 @@ public class SpriteManager {
 
     private final Array<Key> worldKeys;
     private final Array<Coin> worldCoins;
+    private final Array<PowerUp> worldPowerUps;
     private final Array<Enemy> enemies;
     private final Array<StrongerEnemy> strongerEnemies;
+    private final Array<Enemy> enemiesForAvoidance;
     private final Array<Neutral> neutrals;
     private final Array<Projectile> projectiles;
     private final Array<ProjectileSource> projectileSources;
@@ -47,8 +54,10 @@ public class SpriteManager {
         this.game = game;
         worldKeys = new Array<>();
         worldCoins = new Array<>();
+        worldPowerUps = new Array<>();
         enemies = new Array<>();
         strongerEnemies = new Array<>();
+        enemiesForAvoidance = new Array<>();
         neutrals = new Array<>();
         projectiles = new Array<>();
         projectileSources = new Array<>();
@@ -82,12 +91,15 @@ public class SpriteManager {
         worldCoins.add(coin);
     }
 
+    public void addWorldPowerUp(PowerUp powerUp) {
+        worldPowerUps.add(powerUp);
+    }
+
     public void addEnemy(Enemy enemy) {
         enemies.add(enemy);
     }
 
-    public void addStrongerEnemy(StrongerEnemy strongerEnemy) {
-        strongerEnemies.add(strongerEnemy);
+    public void addStrongerEnemy(StrongerEnemy strongerEnemy) {strongerEnemies.add(strongerEnemy);
     }
 
     public void addNeutral (Neutral neutral){
@@ -95,11 +107,23 @@ public class SpriteManager {
     }
 
     public void addProjectileSource(Vector2 origin, Vector2 direction, float intervalSec, boolean fromPlayer) {
+        addProjectileSource(origin, direction, intervalSec, 0f, PROJECTILE_SPEED_PX_PER_SEC, fromPlayer);
+    }
+
+    public void addProjectileSource(
+        Vector2 origin,
+        Vector2 direction,
+        float intervalSec,
+        float initialDelaySec,
+        float speedPxPerSec,
+        boolean fromPlayer
+    ) {
         ProjectileSource source = new ProjectileSource();
         source.origin = new Vector2(origin);
         source.direction = new Vector2(direction).nor();
         source.intervalSec = Math.max(MIN_PROJECTILE_INTERVAL_SEC, intervalSec);
-        source.timerSec = 0f;
+        source.timerSec = -Math.max(0f, initialDelaySec);
+        source.speedPxPerSec = Math.max(1f, speedPxPerSec);
         source.fromPlayer = fromPlayer;
         projectileSources.add(source);
     }
@@ -115,6 +139,11 @@ public class SpriteManager {
         }
         worldCoins.clear();
 
+        for (PowerUp powerUp : worldPowerUps) {
+            powerUp.dispose();
+        }
+        worldPowerUps.clear();
+
         for (Enemy enemy : enemies) {
             enemy.dispose();
         }
@@ -124,6 +153,7 @@ public class SpriteManager {
             strongerEnemy.dispose();
         }
         strongerEnemies.clear();
+        enemiesForAvoidance.clear();
 
         neutrals.clear();
         projectiles.clear();
@@ -139,6 +169,10 @@ public class SpriteManager {
 
     public Array<Coin> getWorldCoins() {
         return worldCoins;
+    }
+
+    public Array<PowerUp> getWorldPowerUps() {
+        return worldPowerUps;
     }
 
     public Array<Enemy> getEnemies() {
@@ -166,7 +200,12 @@ public class SpriteManager {
 
     public void update(float dt) {
         doorUnlockedThisFrame = false;
+        if (player != null) {
+            player.updateStun(dt);
+            updatePowerUpInput();
+        }
         updatePlayerMovement(dt);
+        rebuildEnemiesForAvoidance();
         updateEnemies(dt);
         updateStrongerEnemies(dt);
         updateNeutrals();
@@ -174,10 +213,20 @@ public class SpriteManager {
         updateProjectiles(dt);
         updateWorldKeys();
         updateWorldCoins();
+        updateWorldPowerUps();
+    }
+
+    private void updatePowerUpInput() {
+        for (PowerUpType type : PowerUpType.values()) {
+            if (Gdx.input.isKeyJustPressed(type.activationKey())) {
+                player.activatePowerUp(type);
+            }
+        }
     }
 
     private void updatePlayerMovement(float dt) {
         if (player == null) return;
+        if (player.isStunned()) return;
 
         float dx = 0f;
         float dy = 0f;
@@ -207,9 +256,12 @@ public class SpriteManager {
         }
         player.syncHitboxFromPosition();
 
-        boolean blocked = levelManager.isBlocked(player.getHitbox(), player.getRect(), player.hasKey());
+        boolean usingMasterKey = player.hasMasterKeyActive();
+        boolean blocked = levelManager.isBlocked(player.getHitbox(), player.getRect(), player.hasKey() || usingMasterKey);
         if (levelManager.consumeDoorUnlockEvent()) {
-            player.removeKey();
+            if (!usingMasterKey) {
+                player.removeKey();
+            }
             doorUnlockedThisFrame = true;
         }
 
@@ -226,7 +278,7 @@ public class SpriteManager {
     private void updateEnemies(float dt) {
         for (int i = enemies.size - 1; i >= 0; i--) {
             Enemy enemy = enemies.get(i);
-            enemy.updateBehavior(player, dt, levelManager);
+            enemy.updateBehavior(player, dt, levelManager, enemiesForAvoidance);
             if (enemy.isDead()) {
                 enemies.removeIndex(i);
             }
@@ -245,9 +297,23 @@ public class SpriteManager {
     private void updateStrongerEnemies(float dt) {
         for (int i = strongerEnemies.size - 1; i >= 0; i--) {
             StrongerEnemy strongerEnemy = strongerEnemies.get(i);
-            strongerEnemy.updateBehavior(player, dt, levelManager);
+            strongerEnemy.updateBehavior(player, dt, levelManager, enemiesForAvoidance);
             if (strongerEnemy.isDead()) {
                 strongerEnemies.removeIndex(i);
+            }
+        }
+    }
+
+    private void rebuildEnemiesForAvoidance() {
+        enemiesForAvoidance.clear();
+        for (Enemy enemy : enemies) {
+            if (!enemy.isDead()) {
+                enemiesForAvoidance.add(enemy);
+            }
+        }
+        for (StrongerEnemy strongerEnemy : strongerEnemies) {
+            if (!strongerEnemy.isDead()) {
+                enemiesForAvoidance.add(strongerEnemy);
             }
         }
     }
@@ -257,14 +323,40 @@ public class SpriteManager {
             source.timerSec += dt;
             while (source.timerSec >= source.intervalSec) {
                 source.timerSec -= source.intervalSec;
-                spawnProjectile(source.origin, source.direction, source.fromPlayer);
+                spawnProjectileFromSource(source);
             }
         }
     }
 
+    private void spawnProjectileFromSource(ProjectileSource source) {
+        Vector2 startPosition = new Vector2(source.origin)
+            .mulAdd(source.direction, PROJECTILE_SOURCE_EXIT_OFFSET_PX);
+        spawnProjectile(startPosition, source.direction, source.speedPxPerSec, source.fromPlayer);
+    }
+
     public void spawnProjectile(Vector2 startPosition, Vector2 direction, boolean fromPlayer) {
-        Vector2 velocity = new Vector2(direction).nor().scl(PROJECTILE_SPEED_PX_PER_SEC);
-        projectiles.add(new Projectile(projectileTexture, startPosition, velocity, fromPlayer));
+        spawnProjectile(startPosition, direction, PROJECTILE_SPEED_PX_PER_SEC, fromPlayer);
+    }
+
+    private void spawnProjectile(Vector2 startPosition, Vector2 direction, float speedPxPerSec, boolean fromPlayer) {
+        Vector2 velocity = new Vector2(direction).nor().scl(speedPxPerSec);
+        Projectile projectile = new Projectile(projectileTexture, findClearProjectileStart(startPosition, direction), velocity, fromPlayer);
+        projectiles.add(projectile);
+    }
+
+    private Vector2 findClearProjectileStart(Vector2 startPosition, Vector2 direction) {
+        Vector2 clearPosition = new Vector2(startPosition);
+        if (levelManager == null) return clearPosition;
+
+        Vector2 step = new Vector2(direction).nor().scl(PROJECTILE_SOURCE_EXIT_OFFSET_PX);
+        for (int i = 0; i < PROJECTILE_SPAWN_CLEARANCE_ATTEMPTS; i++) {
+            Projectile probe = new Projectile(projectileTexture, clearPosition, Vector2.Zero, false);
+            if (!levelManager.isBlocked(probe.getHitbox(), probe.getBounds(), false)) {
+                return clearPosition;
+            }
+            clearPosition.add(step);
+        }
+        return clearPosition;
     }
 
     private void updateProjectiles(float dt) {
@@ -345,6 +437,17 @@ public class SpriteManager {
             if (coin.isCollected()) {
                 coin.dispose();
                 worldCoins.removeIndex(i);
+            }
+        }
+    }
+
+    private void updateWorldPowerUps() {
+        for (int i = worldPowerUps.size - 1; i >= 0; i--) {
+            PowerUp powerUp = worldPowerUps.get(i);
+            player.getPowerUp(powerUp);
+            if (powerUp.isCollected()) {
+                powerUp.dispose();
+                worldPowerUps.removeIndex(i);
             }
         }
     }

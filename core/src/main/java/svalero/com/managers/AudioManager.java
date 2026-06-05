@@ -2,7 +2,6 @@ package svalero.com.managers;
 
 import com.badlogic.gdx.Audio;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
@@ -28,11 +27,8 @@ public class AudioManager {
     public AudioManager(Audio audio, Preferences prefs) {
         this.audio = audio;
         this.prefs = prefs;
-
-        soundEnabled = prefs.getBoolean("soundEnabled", true);
-        musicEnabled = prefs.getBoolean("musicEnabled", true);
-        sfxVolume = prefs.getFloat("sfxVolume", 1f);
-        musicVolume = prefs.getFloat("musicVolume", 1f);
+        ensureDefaults();
+        refreshSettingsFromPrefs();
     }
 
 
@@ -41,6 +37,7 @@ public class AudioManager {
     }
 
     public void loadMusic (String id, String path){
+        refreshSettingsFromPrefs();
         Music m = audio.newMusic(Gdx.files.internal(path));
         m.setLooping(true);
         m.setVolume(musicVolume);
@@ -48,6 +45,7 @@ public class AudioManager {
     }
 
     public void playSfx(String id){
+        refreshSettingsFromPrefs();
         if (!soundEnabled){
             return;
         }
@@ -58,6 +56,7 @@ public class AudioManager {
 
 
     public void playMusic(String id, boolean loop) {
+        refreshSettingsFromPrefs();
         Music next = musicTracks.get(id);
         if (next == null) return;
 
@@ -81,7 +80,11 @@ public class AudioManager {
     public void setMusicEnabled(boolean enabled) {
         musicEnabled = enabled;
         if (currentMusic != null) {
-            if (enabled) currentMusic.play();
+            if (enabled) {
+                if (!currentMusic.isPlaying()) {
+                    currentMusic.play();
+                }
+            }
             else currentMusic.pause();
         }
         save();
@@ -98,8 +101,15 @@ public class AudioManager {
         save();
     }
 
-    public boolean isSoundEnabled() { return soundEnabled; }
-    public boolean isMusicEnabled() { return musicEnabled; }
+    public boolean isSoundEnabled() {
+        refreshSettingsFromPrefs();
+        return soundEnabled;
+    }
+
+    public boolean isMusicEnabled() {
+        refreshSettingsFromPrefs();
+        return musicEnabled;
+    }
 
     public void dispose() {
         for (Sound s : sfx.values()) s.dispose();
@@ -115,6 +125,39 @@ public class AudioManager {
         prefs.putFloat("sfxVolume", sfxVolume);
         prefs.putFloat("musicVolume", musicVolume);
         prefs.flush();
+    }
+
+    private void ensureDefaults() {
+        boolean needsFlush = false;
+        if (!prefs.contains("soundEnabled")) {
+            prefs.putBoolean("soundEnabled", true);
+            needsFlush = true;
+        }
+        if (!prefs.contains("musicEnabled")) {
+            prefs.putBoolean("musicEnabled", true);
+            needsFlush = true;
+        }
+        if (!prefs.contains("sfxVolume")) {
+            prefs.putFloat("sfxVolume", 1f);
+            needsFlush = true;
+        }
+        if (!prefs.contains("musicVolume")) {
+            prefs.putFloat("musicVolume", 1f);
+            needsFlush = true;
+        }
+        if (needsFlush) {
+            prefs.flush();
+        }
+    }
+
+    private void refreshSettingsFromPrefs() {
+        soundEnabled = prefs.getBoolean("soundEnabled", true);
+        musicEnabled = prefs.getBoolean("musicEnabled", true);
+        sfxVolume = clamp01(prefs.getFloat("sfxVolume", 1f));
+        musicVolume = clamp01(prefs.getFloat("musicVolume", 1f));
+        if (currentMusic != null) {
+            currentMusic.setVolume(musicVolume);
+        }
     }
 
     private float clamp01(float v) {

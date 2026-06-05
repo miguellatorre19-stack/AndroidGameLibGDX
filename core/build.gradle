@@ -11,6 +11,7 @@ dependencies {
   api "com.github.tommyettinger:anim8-gdx:$anim8Version"
   annotationProcessor "org.projectlombok:lombok:$lombokVersion"
   compileOnly "org.projectlombok:lombok:$lombokVersion"
+  implementation "com.badlogicgames.gdx:gdx-ai:1.8.2"
 
   if(enableGraalNative == 'true') {
     implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
