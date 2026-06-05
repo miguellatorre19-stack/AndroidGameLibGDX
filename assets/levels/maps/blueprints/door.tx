@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+ <object type="door" width="32" height="16">
+  <properties>
+   <property name="exitDoor" type="bool" value="false"/>
+   <property name="id" value="door_01"/>
+   <property name="lateral" type="bool" value="false"/>
+   <property name="requireskey" type="bool" value="true"/>
+  </properties>
+ </object>
+</template>
