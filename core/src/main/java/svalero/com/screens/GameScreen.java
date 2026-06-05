@@ -2,6 +2,7 @@ package svalero.com.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -13,10 +14,11 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import svalero.com.KeyFinder;
-import svalero.com.characters.Enemy;
+import svalero.com.characters.enemy.Enemy;
+import svalero.com.characters.enemy.EnemyConfig;
 import svalero.com.characters.Neutral;
 import svalero.com.characters.Player;
-import svalero.com.characters.StrongerEnemy;
+import svalero.com.characters.enemy.StrongerEnemy;
 import svalero.com.items.Coin;
 import svalero.com.items.Key;
 import svalero.com.managers.AudioManager;
@@ -61,12 +63,14 @@ public class GameScreen implements Screen {
     public void show() {
         ResourceManager.loadAllResources();
         ResourceManager.finishLoadingResources();
+        applyAudioMixDefaults();
 
         initManagers();
         createPlayer();
         setupWorld();
 
         audioManager = new AudioManager();
+        audioManager.loadSfx("interface1", "audio/sound/interface1.mp3");
         pauseOverlay = new PauseOverlay();
         pauseInput = new PauseInput();
         hudManager = new HudManager(renderManager.batch);
@@ -78,18 +82,29 @@ public class GameScreen implements Screen {
 
         loadLevelContent(levelManager.getCurrentLevelIndex());
         hudManager.setLives(player.getLives());
+        hudManager.setKeys(player.getKeysInInventory());
+        hudManager.setCoins(player.getCoinsInInventory());
 
         audioManager.loadMusic("level_music", "audio/music/xDeviruchi - Mysterious Dungeon.wav");
+        audioManager.setSoundEnabled(true);
         audioManager.playMusic("level_music", true);
         audioManager.setMusicEnabled(true);
+    }
+
+    private void applyAudioMixDefaults() {
+        Preferences prefs = Gdx.app.getPreferences("keyfinder-audio");
+        prefs.putFloat("musicVolume", 0.55f);
+        prefs.putFloat("sfxVolume", 1.00f);
+        prefs.flush();
     }
 
     @Override
     public void render(float delta) {
         togglePause();
         popupMessageManager.update(delta);
+        boolean popupVisible = popupMessageManager.isVisible();
 
-        if (!isPaused) {
+        if (!isPaused && !popupVisible) {
             logic(delta);
             if (game.getScreen() != this) {
                 return;
@@ -108,12 +123,18 @@ public class GameScreen implements Screen {
         ScreenUtils.clear(Color.BLACK);
         cameraManager.handleCamera(player, levelManager.getMapWorldWidth(), levelManager.getMapWorldHeight());
         levelManager.loadCurrentLevel(cameraManager.camera);
-        renderManager.drawFrame(spriteManager, cameraManager.camera);
+        renderManager.drawFrame(spriteManager, levelManager, cameraManager.camera);
     }
 
     private void logic(float delta) {
         player.updateBoost(delta);
         spriteManager.handleInput(delta);
+
+        if (player.isDead()) {
+            game.setScreen(new MainMenuScreen(game));
+            dispose();
+            return;
+        }
 
         if (levelManager.isAtLevelExit(player.getHitbox(), player.getRect())) {
             if (levelManager.goToNextLevel()) {
@@ -127,6 +148,7 @@ public class GameScreen implements Screen {
 
         hudManager.update(delta);
         hudManager.setLives(player.getLives());
+        hudManager.setKeys(player.getKeysInInventory());
         hudManager.setCoins(player.getCoinsInInventory());
         hudManager.setBoost(player.hasBoost(), player.getBoostProgress01());
         handleNeutralNpcPopupFlow();
@@ -159,11 +181,16 @@ public class GameScreen implements Screen {
         PauseAction action = pauseInput.pollAction(pauseOverlay);
         switch (action) {
             case RESUME -> {
+                audioManager.playSfx("interface1");
                 pauseOverlay.pressResume();
                 resume();
             }
-            case TOGGLE_OPTIONS -> pauseOverlay.pressOptions();
+            case TOGGLE_OPTIONS -> {
+                audioManager.playSfx("interface1");
+                pauseOverlay.pressOptions();
+            }
             case QUIT_TO_MENU -> {
+                audioManager.playSfx("interface1");
                 pauseOverlay.pressQuit();
                 game.setScreen(new MainMenuScreen(game));
                 dispose();
@@ -171,7 +198,15 @@ public class GameScreen implements Screen {
             case TOGGLE_SOUND -> {
                 pauseOverlay.pressSound();
                 boolean enable = !audioManager.isSoundEnabled();
-                audioManager.setSoundEnabled(enable);
+                if (enable) {
+                    audioManager.setSoundEnabled(true);
+                    audioManager.playSfx("interface1");
+                } else {
+                    audioManager.playSfx("interface1");
+                }
+                if (!enable) {
+                    audioManager.setSoundEnabled(false);
+                }
                 audioManager.setMusicEnabled(enable);
             }
             case NONE -> {
@@ -222,9 +257,9 @@ public class GameScreen implements Screen {
             audioManager = null;
         }
 
-        if (renderManager != null && renderManager.batch != null) {
-            renderManager.batch.dispose();
-            renderManager.batch = null;
+        if (renderManager != null) {
+            renderManager.dispose();
+            renderManager = null;
         }
         if (hudManager != null) {
             hudManager.dispose();
@@ -309,7 +344,7 @@ public class GameScreen implements Screen {
         spriteManager.addEnemy(new Enemy(
             new Vector2(200, 190),
             spriteManager,
-            2,
+            EnemyConfig.skeleton(2),
             enemyIdle,
             enemyMovement,
             enemyAttack,
@@ -320,7 +355,7 @@ public class GameScreen implements Screen {
         spriteManager.addEnemy(new Enemy(
             new Vector2(80, 190),
             spriteManager,
-            3,
+            EnemyConfig.skeleton(3),
             enemyIdle,
             enemyMovement,
             enemyAttack,
@@ -379,7 +414,7 @@ public class GameScreen implements Screen {
         spriteManager.addEnemy(new Enemy(
             new Vector2(72, 32),
             spriteManager,
-            3,
+            EnemyConfig.skeleton(3),
             enemyIdle,
             enemyMovement,
             enemyAttack,
@@ -390,7 +425,7 @@ public class GameScreen implements Screen {
         spriteManager.addEnemy(new Enemy(
             new Vector2(156, 108),
             spriteManager,
-            3,
+            EnemyConfig.skeleton(3),
             enemyIdle,
             enemyMovement,
             enemyAttack,
@@ -401,7 +436,7 @@ public class GameScreen implements Screen {
         spriteManager.addEnemy(new Enemy(
             new Vector2(252, 184),
             spriteManager,
-            3,
+            EnemyConfig.skeleton(3),
             enemyIdle,
             enemyMovement,
             enemyAttack,
@@ -412,7 +447,7 @@ public class GameScreen implements Screen {
         spriteManager.addStrongerEnemy(new StrongerEnemy(
             new Vector2(320, 48),
             spriteManager,
-            5,
+            EnemyConfig.stronger(5),
             strongEnemyIdle,
             strongEnemyMovement,
             strongEnemyAttack,

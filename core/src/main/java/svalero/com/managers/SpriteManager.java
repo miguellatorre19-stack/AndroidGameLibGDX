@@ -8,11 +8,11 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import svalero.com.KeyFinder;
-import svalero.com.characters.Enemy;
+import svalero.com.characters.enemy.Enemy;
 import svalero.com.characters.Neutral;
 import svalero.com.characters.Player;
 import svalero.com.characters.Projectile;
-import svalero.com.characters.StrongerEnemy;
+import svalero.com.characters.enemy.StrongerEnemy;
 import svalero.com.items.Coin;
 import svalero.com.items.Key;
 
@@ -35,6 +35,7 @@ public class SpriteManager {
     private final Array<Coin> worldCoins;
     private final Array<Enemy> enemies;
     private final Array<StrongerEnemy> strongerEnemies;
+    private final Array<Enemy> enemiesForAvoidance;
     private final Array<Neutral> neutrals;
     private final Array<Projectile> projectiles;
     private final Array<ProjectileSource> projectileSources;
@@ -49,6 +50,7 @@ public class SpriteManager {
         worldCoins = new Array<>();
         enemies = new Array<>();
         strongerEnemies = new Array<>();
+        enemiesForAvoidance = new Array<>();
         neutrals = new Array<>();
         projectiles = new Array<>();
         projectileSources = new Array<>();
@@ -86,8 +88,7 @@ public class SpriteManager {
         enemies.add(enemy);
     }
 
-    public void addStrongerEnemy(StrongerEnemy strongerEnemy) {
-        strongerEnemies.add(strongerEnemy);
+    public void addStrongerEnemy(StrongerEnemy strongerEnemy) {strongerEnemies.add(strongerEnemy);
     }
 
     public void addNeutral (Neutral neutral){
@@ -124,6 +125,7 @@ public class SpriteManager {
             strongerEnemy.dispose();
         }
         strongerEnemies.clear();
+        enemiesForAvoidance.clear();
 
         neutrals.clear();
         projectiles.clear();
@@ -166,7 +168,11 @@ public class SpriteManager {
 
     public void update(float dt) {
         doorUnlockedThisFrame = false;
+        if (player != null) {
+            player.updateStun(dt);
+        }
         updatePlayerMovement(dt);
+        rebuildEnemiesForAvoidance();
         updateEnemies(dt);
         updateStrongerEnemies(dt);
         updateNeutrals();
@@ -178,6 +184,7 @@ public class SpriteManager {
 
     private void updatePlayerMovement(float dt) {
         if (player == null) return;
+        if (player.isStunned()) return;
 
         float dx = 0f;
         float dy = 0f;
@@ -226,7 +233,7 @@ public class SpriteManager {
     private void updateEnemies(float dt) {
         for (int i = enemies.size - 1; i >= 0; i--) {
             Enemy enemy = enemies.get(i);
-            enemy.updateBehavior(player, dt, levelManager);
+            enemy.updateBehavior(player, dt, levelManager, enemiesForAvoidance);
             if (enemy.isDead()) {
                 enemies.removeIndex(i);
             }
@@ -245,9 +252,23 @@ public class SpriteManager {
     private void updateStrongerEnemies(float dt) {
         for (int i = strongerEnemies.size - 1; i >= 0; i--) {
             StrongerEnemy strongerEnemy = strongerEnemies.get(i);
-            strongerEnemy.updateBehavior(player, dt, levelManager);
+            strongerEnemy.updateBehavior(player, dt, levelManager, enemiesForAvoidance);
             if (strongerEnemy.isDead()) {
                 strongerEnemies.removeIndex(i);
+            }
+        }
+    }
+
+    private void rebuildEnemiesForAvoidance() {
+        enemiesForAvoidance.clear();
+        for (Enemy enemy : enemies) {
+            if (!enemy.isDead()) {
+                enemiesForAvoidance.add(enemy);
+            }
+        }
+        for (StrongerEnemy strongerEnemy : strongerEnemies) {
+            if (!strongerEnemy.isDead()) {
+                enemiesForAvoidance.add(strongerEnemy);
             }
         }
     }

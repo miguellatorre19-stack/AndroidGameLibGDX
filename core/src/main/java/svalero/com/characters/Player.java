@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import svalero.com.items.Coin;
 import svalero.com.items.Key;
+import svalero.com.managers.AudioManager;
 import svalero.com.managers.SpriteManager;
 import svalero.com.screens.MainMenuScreen;
 
@@ -26,14 +27,14 @@ public class Player extends Character implements Disposable {
     public int getKeysInInventory() {
         return keysInInventory;
     }
-
     private int coinsInInventory;
-
     public int price;
 
     private boolean isBoosted;
     private float boostTimeRemainingSec;
+    private float stunTimeRemainingSec;
 
+    private AudioManager audioManager;
     public void setPrice(int price) {
         this.price = price;
     }
@@ -46,6 +47,11 @@ public class Player extends Character implements Disposable {
         lives = 3;
         isBoosted = false;
         boostTimeRemainingSec = 0f;
+        stunTimeRemainingSec = 0f;
+        audioManager = new AudioManager();
+        audioManager.loadSfx("damaged", "audio/sound/armor-light.wav");
+        audioManager.loadSfx("coin_pickup", "audio/sound/coin.mp3");
+        audioManager.loadSfx("key_pickup", "audio/sound/keys_pickup.mp3");
     }
 
     @Override
@@ -55,13 +61,14 @@ public class Player extends Character implements Disposable {
 
     @Override
     public void die() {
-        game.setScreen(new MainMenuScreen(game));
-        dispose();
+        // El flujo de cambio de pantalla por muerte lo gestiona GameScreen para
+        // asegurar que se liberen correctamente todos los managers (incluido audio).
     }
 
     @Override
     public void affected() {
         if (dead) return;
+        audioManager.playSfx("damaged");
         lives -= 1;
         if (lives <= 0) {
             dead = true;
@@ -78,6 +85,7 @@ public class Player extends Character implements Disposable {
 
         if (Intersector.overlaps(key.getColision(), rect)){
             keysInInventory +=1;
+            audioManager.playSfx("key_pickup");
             key.collect();
         }
     }
@@ -89,9 +97,9 @@ public class Player extends Character implements Disposable {
     }
 
     public void getCoin(Coin coin){
-        if( coin == null)return;;
-
-        if(Intersector.overlaps(coin.getColision(), rect)){
+        if (coin == null || coin.isCollected()) return;
+        if (Intersector.overlaps(coin.getColision(), rect)) {
+            audioManager.playSfx("coin_pickup");
             coinsInInventory +=1;
             coin.collect();
         }
@@ -116,7 +124,25 @@ public class Player extends Character implements Disposable {
         }
     }
 
+    public void stun(float durationSec) {
+        if (dead || durationSec <= 0f) return;
+        stunTimeRemainingSec = Math.max(stunTimeRemainingSec, durationSec);
+    }
+
+    public void updateStun(float dt) {
+        if (!isStunned()) return;
+        stunTimeRemainingSec -= dt;
+        if (stunTimeRemainingSec <= 0f) {
+            stunTimeRemainingSec = 0f;
+        }
+    }
+
+    public boolean isStunned() {
+        return stunTimeRemainingSec > 0f;
+    }
+
     public float getMoveSpeedPxPerSec() {
+        if (isStunned()) return 0f;
         if (hasBoost()) return PlayerSpeed_PxPerSec * BOOST_SPEED_MULTIPLIER;
         return PlayerSpeed_PxPerSec;
     }

@@ -18,7 +18,7 @@ import com.badlogic.gdx.utils.Disposable;
 
 public class PopupMessageManager implements Disposable {
     private static final float PANEL_PADDING = 18f;
-    private static final float MAX_WIDTH_FACTOR = 0.70f;
+    private static final float MAX_WIDTH_FACTOR = 0.92f;
     private static final float FLOAT_DISTANCE_PX = 3f;
     private static final float FLOAT_TIME_SEC = 0.9f;
 
@@ -35,6 +35,8 @@ public class PopupMessageManager implements Disposable {
     private final Label dismissHintLabel;
     private final Array<PopupRequest> queue;
     private int[] currentDismissKeys;
+
+    private AudioManager audioManager;
 
     public PopupMessageManager(Stage stage) {
         this.stage = stage;
@@ -66,10 +68,13 @@ public class PopupMessageManager implements Disposable {
         popupTable.setVisible(false);
 
         stage.addActor(popupTable);
+
+        audioManager =new AudioManager();
+        audioManager.loadSfx("popup", "audio/sound/popup.mp3");
     }
 
     public void showMessage(String text) {
-        showMessage(text, Input.Keys.E, Input.Keys.SPACE);
+        showMessage(text, Input.Keys.SPACE);
     }
 
     public void showMessage(String text, int... dismissKeys) {
@@ -82,6 +87,7 @@ public class PopupMessageManager implements Disposable {
         request.text = normalized;
         request.dismissKeys = keys;
 
+        audioManager.playSfx("popup");
         if (isVisible()) {
             queue.add(request);
             return;
@@ -155,7 +161,10 @@ public class PopupMessageManager implements Disposable {
         dismissHintLabel.setWidth(popupW - (PANEL_PADDING * 2f));
         popupTable.setWidth(popupW);
         popupTable.pack();
-        popupTable.setPosition((worldW - popupTable.getWidth()) * 0.5f, worldH * 0.72f);
+        popupTable.setPosition(
+            (worldW - popupTable.getWidth()) * 0.5f,
+            (worldH - popupTable.getHeight()) * 0.5f
+        );
     }
 
     private boolean wasDismissPressed() {
@@ -167,7 +176,7 @@ public class PopupMessageManager implements Disposable {
 
     private int[] normalizeDismissKeys(int[] dismissKeys) {
         if (dismissKeys == null || dismissKeys.length == 0) {
-            return new int[]{Input.Keys.E, Input.Keys.SPACE};
+            return new int[]{Input.Keys.SPACE};
         }
         return dismissKeys;
     }

@@ -63,19 +63,19 @@
 </data>
  </layer>
  <objectgroup id="4" name="collisions">
-  <object id="2" class="solid" x="16" y="64">
+  <object id="2" type="solid" x="16" y="64">
    <properties>
     <property name="id" value="wall"/>
    </properties>
    <polygon points="0,0 64,0 80,0 80,80 48,80 48,64 64,64 64,16 0,16 0,64 16,64 16,128 0,128 0,144 -16,144 -16,112 0,112 0,80 -16,80 -16,0"/>
   </object>
-  <object id="3" class="solid" x="144" y="0">
+  <object id="3" type="solid" x="144" y="0">
    <properties>
     <property name="id" value="wall"/>
    </properties>
    <polygon points="0,0 0,80 32,80 32,64 16,64 16,16 80,16 80,64 64,64 64,80 96,80 96,0"/>
   </object>
-  <object id="5" class="solid" x="288" y="0">
+  <object id="5" type="solid" x="288" y="0">
    <properties>
     <property name="id" value="wall"/>
    </properties>
@@ -87,54 +87,55 @@
    </properties>
    <polygon points="0,0 80,0 80,-48 64,-48 64,-64 96,-64 96,16 0,16"/>
   </object>
-  <object id="10" class="solid" x="112" y="112">
+  <object id="10" type="solid" x="112" y="112">
    <properties>
     <property name="id" value="wall"/>
    </properties>
    <polygon points="0,0 48,0 48,32 0,32 0,0"/>
   </object>
-  <object id="11" class="solid" x="112" y="176">
+  <object id="11" type="solid" x="112" y="176">
    <properties>
     <property name="id" value="wall"/>
    </properties>
    <polygon points="0,0 48,0 48,32 0,32"/>
   </object>
-  <object id="12" class="solid" x="112" y="240">
+  <object id="12" type="solid" x="112" y="240">
    <properties>
     <property name="id" value="wall"/>
    </properties>
    <polygon points="0,0 48,0 48,16 0,16 0,0"/>
   </object>
-  <object id="13" class="solid" x="80" y="48">
+  <object id="13" type="solid" x="80" y="48">
    <properties>
     <property name="id" value="wall"/>
    </properties>
    <polygon points="0,0 -80,0 -80,-48 0,-48 0,-32 -16,-32 -64,-32 -64,-16 0,-16"/>
   </object>
-  <object id="26" class="door" x="176" y="64">
+  <object id="26" type="door" x="176" y="64">
    <properties>
     <property name="doorID" value="2"/>
    </properties>
    <polygon points="0,0 0,16 32,16 32,0 0,0"/>
   </object>
-  <object id="27" class="door" x="64" y="144">
+  <object id="27" type="door" x="64" y="144">
    <properties>
     <property name="doorID" value="1"/>
+    <property name="lateral" value=""/>
    </properties>
    <polygon points="0,0 16,0 16,32 0,32"/>
   </object>
-  <object id="28" class="door" x="320" y="64">
+  <object id="28" type="door" x="320" y="64">
    <properties>
     <property name="doorID" value="third_door"/>
    </properties>
    <polygon points="0,0 32,0 32,16 0,16"/>
   </object>
-  <object id="30" class="solid" x="384" y="0">
+  <object id="30" type="solid" x="384" y="0">
    <polygon points="0,0 0,-16 -400,-16 -400,272 16,272 16,0 0,0 0,256 -384,256 -384,0"/>
   </object>
  </objectgroup>
  <objectgroup id="7" name="triggers">
-  <object id="32" name="trampilla" class="exit" x="320" y="32">
+  <object id="32" name="trampilla" type="exit" x="320" y="32">
    <properties>
     <property name="id" value="exit"/>
    </properties>

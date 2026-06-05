@@ -40,6 +40,8 @@ public class LevelManager implements Disposable {
     private static final String EXIT_COLLISION_ID = "exit";
     private static final String EXIT_COLLISION_NAME = "trampilla";
 
+    private AudioManager audioManager;
+
     private static class CollisionShape {
         Rectangle bounds;
         Array<Polygon> convexParts = new Array<>();
@@ -49,6 +51,7 @@ public class LevelManager implements Disposable {
         CollisionShape collisionShape;
         boolean isExitDoor;
         boolean unlocked;
+        boolean lateral;
     }
 
     private TiledMap map;
@@ -57,6 +60,8 @@ public class LevelManager implements Disposable {
     private final Array<CollisionShape> staticCollisionAreas;
     private final Array<DoorArea> doorAreas;
     private final Array<CollisionShape> exitAreas;
+    private final Array<Rectangle> lockedDoorBounds;
+    private final Array<Rectangle> lockedLateralDoorBounds;
     private final TmxMapLoader.Parameters mapLoaderParameters;
     private final EarClippingTriangulator triangulator;
 
@@ -71,8 +76,13 @@ public class LevelManager implements Disposable {
         staticCollisionAreas = new Array<>();
         doorAreas = new Array<>();
         exitAreas = new Array<>();
+        lockedDoorBounds = new Array<>();
+        lockedLateralDoorBounds = new Array<>();
         triangulator = new EarClippingTriangulator();
         doorUnlockedThisStep = false;
+
+        audioManager = new AudioManager();
+        audioManager.loadSfx("open_door", "audio/sound/06_door_close_2.mp3");
 
         loadLevelByIndex(0);
     }
@@ -99,8 +109,24 @@ public class LevelManager implements Disposable {
         mapRenderer.render();
     }
 
-    public boolean isBlocked(Polygon dynamicHitbox, Rectangle dynamicBounds) {
-        return isBlocked(dynamicHitbox, dynamicBounds, false);
+    public Array<Rectangle> getLockedDoorBounds() {
+        lockedDoorBounds.clear();
+        for (DoorArea door : doorAreas) {
+            if (door.unlocked) continue;
+            if (door.lateral) continue;
+            lockedDoorBounds.add(door.collisionShape.bounds);
+        }
+        return lockedDoorBounds;
+    }
+
+    public Array<Rectangle> getLockedLateralDoorBounds() {
+        lockedLateralDoorBounds.clear();
+        for (DoorArea door : doorAreas) {
+            if (door.unlocked) continue;
+            if (!door.lateral) continue;
+            lockedLateralDoorBounds.add(door.collisionShape.bounds);
+        }
+        return lockedLateralDoorBounds;
     }
 
     public boolean isBlocked(Polygon dynamicHitbox, Rectangle dynamicBounds, boolean hasKey) {
@@ -128,6 +154,9 @@ public class LevelManager implements Disposable {
     public boolean consumeDoorUnlockEvent() {
         boolean unlocked = doorUnlockedThisStep;
         doorUnlockedThisStep = false;
+        if (unlocked) {
+            audioManager.playSfx("open_door");
+        }
         return unlocked;
     }
 
@@ -234,6 +263,7 @@ public class LevelManager implements Disposable {
                 door.collisionShape = shape;
                 door.isExitDoor = isExitDoor(object);
                 door.unlocked = false;
+                door.lateral = isLateralDoor(object);
                 doorAreas.add(door);
                 continue;
             }
@@ -364,6 +394,19 @@ public class LevelManager implements Disposable {
             || EXIT_COLLISION_ID.equalsIgnoreCase(type);
     }
 
+    private boolean isLateralDoor(MapObject object) {
+        if (object == null) return false;
+        if (!object.getProperties().containsKey("lateral")) return false;
+
+        String lateralValue = object.getProperties().get("lateral", String.class);
+        if (lateralValue == null || lateralValue.isBlank()) {
+            return true;
+        }
+        return "true".equalsIgnoreCase(lateralValue)
+            || "1".equals(lateralValue)
+            || "yes".equalsIgnoreCase(lateralValue);
+    }
+
     private String readObjectClass(MapObject object) {
         String clazz = object.getProperties().get(CLASS_PROPERTY, String.class);
         if (clazz != null && !clazz.isBlank()) return clazz;
@@ -401,5 +444,7 @@ public class LevelManager implements Disposable {
         staticCollisionAreas.clear();
         doorAreas.clear();
         exitAreas.clear();
+        lockedDoorBounds.clear();
+        lockedLateralDoorBounds.clear();
     }
 }

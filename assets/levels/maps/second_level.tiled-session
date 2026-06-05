@@ -15,26 +15,26 @@
         },
         "first_level_tutorial.tmx": {
             "expandedObjectLayers": [
-                5,
-                3
+                3,
+                5
             ],
             "scale": 3.33984375,
-            "selectedLayer": 3,
+            "selectedLayer": 4,
             "viewCenter": {
                 "x": 125.90409356725144,
-                "y": 122.76023391812866
+                "y": 43.71461988304094
             }
         },
         "second_level.tmx": {
             "expandedObjectLayers": [
-                4,
-                7
+                7,
+                4
             ],
             "scale": 4,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 83.125,
-                "y": 128.25
+                "x": 54.375,
+                "y": 70.75
             }
         },
         "tilesets/Dungeon_Tileset.tsx": {

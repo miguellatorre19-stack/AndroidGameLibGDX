@@ -155,6 +155,11 @@ public class HudManager implements Disposable {
         coinLabel.setText(String.format("COINS X %02d", this.coins));
     }
 
+    public void setKeys(int keys){
+        this.key = keys;
+        keyLabel.setText(String.format("KEY %02d", this.key));
+    }
+
     public void setBoost(boolean boosted, float progress01) {
         if (boostBar == null) return;
         boostBar.setProgress(progress01);
