@@ -19,12 +19,15 @@ import svalero.com.items.Key;
 public class SpriteManager {
     private static final float PROJECTILE_SPEED_PX_PER_SEC = 120f;
     private static final float MIN_PROJECTILE_INTERVAL_SEC = 0.05f;
+    private static final float PROJECTILE_SOURCE_EXIT_OFFSET_PX = 8f;
+    private static final int PROJECTILE_SPAWN_CLEARANCE_ATTEMPTS = 4;
 
     private static class ProjectileSource {
         Vector2 origin;
         Vector2 direction;
         float intervalSec;
         float timerSec;
+        float speedPxPerSec;
         boolean fromPlayer;
     }
 
@@ -96,11 +99,23 @@ public class SpriteManager {
     }
 
     public void addProjectileSource(Vector2 origin, Vector2 direction, float intervalSec, boolean fromPlayer) {
+        addProjectileSource(origin, direction, intervalSec, 0f, PROJECTILE_SPEED_PX_PER_SEC, fromPlayer);
+    }
+
+    public void addProjectileSource(
+        Vector2 origin,
+        Vector2 direction,
+        float intervalSec,
+        float initialDelaySec,
+        float speedPxPerSec,
+        boolean fromPlayer
+    ) {
         ProjectileSource source = new ProjectileSource();
         source.origin = new Vector2(origin);
         source.direction = new Vector2(direction).nor();
         source.intervalSec = Math.max(MIN_PROJECTILE_INTERVAL_SEC, intervalSec);
-        source.timerSec = 0f;
+        source.timerSec = -Math.max(0f, initialDelaySec);
+        source.speedPxPerSec = Math.max(1f, speedPxPerSec);
         source.fromPlayer = fromPlayer;
         projectileSources.add(source);
     }
@@ -278,14 +293,40 @@ public class SpriteManager {
             source.timerSec += dt;
             while (source.timerSec >= source.intervalSec) {
                 source.timerSec -= source.intervalSec;
-                spawnProjectile(source.origin, source.direction, source.fromPlayer);
+                spawnProjectileFromSource(source);
             }
         }
     }
 
+    private void spawnProjectileFromSource(ProjectileSource source) {
+        Vector2 startPosition = new Vector2(source.origin)
+            .mulAdd(source.direction, PROJECTILE_SOURCE_EXIT_OFFSET_PX);
+        spawnProjectile(startPosition, source.direction, source.speedPxPerSec, source.fromPlayer);
+    }
+
     public void spawnProjectile(Vector2 startPosition, Vector2 direction, boolean fromPlayer) {
-        Vector2 velocity = new Vector2(direction).nor().scl(PROJECTILE_SPEED_PX_PER_SEC);
-        projectiles.add(new Projectile(projectileTexture, startPosition, velocity, fromPlayer));
+        spawnProjectile(startPosition, direction, PROJECTILE_SPEED_PX_PER_SEC, fromPlayer);
+    }
+
+    private void spawnProjectile(Vector2 startPosition, Vector2 direction, float speedPxPerSec, boolean fromPlayer) {
+        Vector2 velocity = new Vector2(direction).nor().scl(speedPxPerSec);
+        Projectile projectile = new Projectile(projectileTexture, findClearProjectileStart(startPosition, direction), velocity, fromPlayer);
+        projectiles.add(projectile);
+    }
+
+    private Vector2 findClearProjectileStart(Vector2 startPosition, Vector2 direction) {
+        Vector2 clearPosition = new Vector2(startPosition);
+        if (levelManager == null) return clearPosition;
+
+        Vector2 step = new Vector2(direction).nor().scl(PROJECTILE_SOURCE_EXIT_OFFSET_PX);
+        for (int i = 0; i < PROJECTILE_SPAWN_CLEARANCE_ATTEMPTS; i++) {
+            Projectile probe = new Projectile(projectileTexture, clearPosition, Vector2.Zero, false);
+            if (!levelManager.isBlocked(probe.getHitbox(), probe.getBounds(), false)) {
+                return clearPosition;
+            }
+            clearPosition.add(step);
+        }
+        return clearPosition;
     }
 
     private void updateProjectiles(float dt) {

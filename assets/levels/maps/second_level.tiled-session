@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "first_level_tutorial.tmx",
+    "activeFile": "second_level.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -15,26 +15,30 @@
         },
         "first_level_tutorial.tmx": {
             "expandedObjectLayers": [
-                3,
-                5
+                12,
+                11,
+                10,
+                3
             ],
-            "scale": 3.33984375,
-            "selectedLayer": 4,
+            "scale": 3,
+            "selectedLayer": 6,
             "viewCenter": {
-                "x": 125.90409356725144,
-                "y": 43.71461988304094
+                "x": 141.83333333333331,
+                "y": 104.99999999999999
             }
         },
         "second_level.tmx": {
             "expandedObjectLayers": [
-                7,
-                4
+                8,
+                4,
+                9,
+                7
             ],
-            "scale": 4,
+            "scale": 2,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 54.375,
-                "y": 70.75
+                "x": 156.25,
+                "y": -111
             }
         },
         "tilesets/Dungeon_Tileset.tsx": {
@@ -46,6 +50,7 @@
     },
     "last.exportedFilePath": "C:/Users/Usuario/Desktop/DAM/2/MultimediaDispositivos/awesome_game/assets/levels/maps",
     "last.imagePath": "C:/Users/Usuario/Desktop/DAM/2/MultimediaDispositivos/awesome_game/assets/2D_Pixel_Dungeon_Asset_Pack",
+    "last.objectTemplatePath": "C:/Users/Usuario/Desktop/DAM/2/MultimediaDispositivos/awesome_game/assets/levels/maps/blueprints",
     "map.height": 16,
     "map.lastUsedExportFilter": "Todos los archivos (*)",
     "map.lastUsedFormat": "tmx",
@@ -57,9 +62,10 @@
         "second_level.tmx"
     ],
     "project": "second_level.tiled-project",
+    "property.type": "bool",
     "recentFiles": [
-        "second_level.tmx",
         "first_level_tutorial.tmx",
+        "second_level.tmx",
         "Dungeon_Tileset.tsx"
     ],
     "tileset.lastUsedFormat": "tsx"

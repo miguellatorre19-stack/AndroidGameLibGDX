@@ -25,20 +25,20 @@ public record EnemyConfig(
     public static EnemyConfig skeleton(int maxLives) {
         return new EnemyConfig(
             maxLives,
-            24f,
+            34f,
             0.3f,
             5f * TILE_SIZE_PX,
-            2f * TILE_SIZE_PX
+            3f * TILE_SIZE_PX
         );
     }
 
     public static EnemyConfig stronger(int maxLives) {
         return new EnemyConfig(
             maxLives,
-            24f,
+            36f,
             0.6f,
             12f * TILE_SIZE_PX,
-            3f * TILE_SIZE_PX
+            4f * TILE_SIZE_PX
         );
     }
 }

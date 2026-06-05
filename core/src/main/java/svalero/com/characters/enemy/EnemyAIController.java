@@ -26,6 +26,7 @@ class EnemyAIController {
     private static final float WAYPOINT_REACHED_DISTANCE_PX = 4f;
     private static final float SEPARATION_RADIUS_PX = 12f;
     private static final float SEPARATION_STRENGTH = 0.9f;
+    private static final float PATROL_STUCK_SWITCH_SEC = 0.45f;
 
     private final Enemy owner;
     private final float chaseSpeedPxPerSec;
@@ -47,6 +48,7 @@ class EnemyAIController {
     private final Vector2 patrolPointA;
     private final Vector2 patrolPointB;
     private Vector2 currentPatrolTarget;
+    private float patrolStuckTimer;
 
     private Player currentPlayer;
     private Array<Enemy> currentNearbyEnemies;
@@ -93,6 +95,7 @@ class EnemyAIController {
         patrolPointA = new Vector2(owner.aiPosition().x - patrolRadiusPx, owner.aiPosition().y);
         patrolPointB = new Vector2(owner.aiPosition().x + patrolRadiusPx, owner.aiPosition().y);
         currentPatrolTarget = patrolPointB;
+        patrolStuckTimer = 0f;
         clampPatrolPoints();
 
         stateMachine = new DefaultStateMachine<>(owner, EnemyState.PATRULLANDO);
@@ -134,9 +137,18 @@ class EnemyAIController {
     void patrol() {
         steeringTarget.setPosition(currentPatrolTarget);
         boolean moved = applySteering(patrolBehavior);
-        if (owner.aiPosition().dst2(currentPatrolTarget) <= ARRIVE_TOLERANCE_PX * ARRIVE_TOLERANCE_PX) {
-            currentPatrolTarget = currentPatrolTarget == patrolPointA ? patrolPointB : patrolPointA;
+
+        if (moved) {
+            patrolStuckTimer = 0f;
+        } else {
+            patrolStuckTimer += currentDt;
         }
+
+        boolean reachedTarget = owner.aiPosition().dst2(currentPatrolTarget) <= ARRIVE_TOLERANCE_PX * ARRIVE_TOLERANCE_PX;
+        if (reachedTarget || patrolStuckTimer >= PATROL_STUCK_SWITCH_SEC) {
+            switchPatrolTarget();
+        }
+
         if (moved) {
             owner.setMovementAnimation();
         } else {
@@ -172,6 +184,7 @@ class EnemyAIController {
 
     void onEnterPatrolState() {
         steeringOwner.getLinearVelocity().scl(0.8f);
+        patrolStuckTimer = 0f;
     }
 
     void onEnterAttackState() {
@@ -370,6 +383,12 @@ class EnemyAIController {
         patrolPointA.y = Math.max(0f, patrolPointA.y);
         patrolPointB.x = Math.max(0f, patrolPointB.x);
         patrolPointB.y = Math.max(0f, patrolPointB.y);
+    }
+
+    private void switchPatrolTarget() {
+        currentPatrolTarget = currentPatrolTarget == patrolPointA ? patrolPointB : patrolPointA;
+        patrolStuckTimer = 0f;
+        steeringOwner.getLinearVelocity().scl(0.35f);
     }
 
     private static class AgentSteerable implements Steerable<Vector2> {
