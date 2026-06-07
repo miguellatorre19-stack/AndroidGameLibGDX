@@ -77,6 +77,7 @@ public class GameScreen implements Screen {
         hudManager.setLives(player.getLives());
         hudManager.setKeys(player.getKeysInInventory());
         hudManager.setCoins(player.getCoinsInInventory());
+        hudManager.setMana(player.getManaProgress01());
         updatePowerUpHud();
 
         audioManager.loadMusic("level_music", "audio/music/xDeviruchi - Mysterious Dungeon.wav");
@@ -144,6 +145,7 @@ public class GameScreen implements Screen {
         hudManager.setLives(player.getLives());
         hudManager.setKeys(player.getKeysInInventory());
         hudManager.setCoins(player.getCoinsInInventory());
+        hudManager.setMana(player.getManaProgress01());
         updatePowerUpHud();
         handleNeutralNpcPopupFlow();
     }

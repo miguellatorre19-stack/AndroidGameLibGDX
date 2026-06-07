@@ -4,7 +4,7 @@ package svalero.com.utils;
 public class Constants {
 
     public static final String APP_NAME = "KeyFinder";
-    public static final float PlayerSpeed_PxPerSec = 40f;
+    public static final float PlayerSpeed_PxPerSec = 34f;
     public static final float PLAYER_BOOST_DURATION_SEC = 20f;
 
     public static final int SCREEN_WIDTH =1280;

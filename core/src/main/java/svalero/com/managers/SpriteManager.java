@@ -202,9 +202,13 @@ public class SpriteManager {
         doorUnlockedThisFrame = false;
         if (player != null) {
             player.updateStun(dt);
+            player.updateSlow(dt);
+            player.updateManaAndAttack(dt);
             updatePowerUpInput();
+            updateMeleeAttackInput();
         }
         updatePlayerMovement(dt);
+        updatePlayerMeleeAttackHits();
         rebuildEnemiesForAvoidance();
         updateEnemies(dt);
         updateStrongerEnemies(dt);
@@ -221,6 +225,12 @@ public class SpriteManager {
             if (Gdx.input.isKeyJustPressed(type.activationKey())) {
                 player.activatePowerUp(type);
             }
+        }
+    }
+
+    private void updateMeleeAttackInput() {
+        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+            player.tryMeleeAttack();
         }
     }
 
@@ -301,6 +311,28 @@ public class SpriteManager {
             if (strongerEnemy.isDead()) {
                 strongerEnemies.removeIndex(i);
             }
+        }
+    }
+
+    private void updatePlayerMeleeAttackHits() {
+        if (player == null || !player.canMeleeAttackDamage()) return;
+
+        for (Enemy enemy : enemies) {
+            if (enemy.isDead()) continue;
+            if (!Intersector.overlapConvexPolygons(enemy.getHitbox(), player.getMeleeAttackHitbox())) continue;
+
+            enemy.onProjectileHit();
+            player.consumeMeleeAttackDamage();
+            return;
+        }
+
+        for (StrongerEnemy strongerEnemy : strongerEnemies) {
+            if (strongerEnemy.isDead()) continue;
+            if (!Intersector.overlapConvexPolygons(strongerEnemy.getHitbox(), player.getMeleeAttackHitbox())) continue;
+
+            strongerEnemy.onProjectileHit();
+            player.consumeMeleeAttackDamage();
+            return;
         }
     }
 

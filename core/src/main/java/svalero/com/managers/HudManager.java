@@ -1,6 +1,7 @@
 package svalero.com.managers;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -35,6 +36,8 @@ public class HudManager implements Disposable {
     private static final float FONT_SCALE = 1.35f;
     private static final float BOOST_BAR_WIDTH = 170f;
     private static final float BOOST_BAR_HEIGHT = 16f;
+    private static final float MANA_BAR_WIDTH = 170f;
+    private static final float MANA_BAR_HEIGHT = 12f;
     private static final float POWER_UP_ICON_SIZE = 24f;
 
 
@@ -60,6 +63,7 @@ public class HudManager implements Disposable {
     private BitmapFont hudFont;
     private Texture coinSymbol;
     private BoostBarActor boostBar;
+    private ManaBarActor manaBar;
     private final EnumMap<PowerUpType, Label> powerUpLabels;
     private final EnumMap<PowerUpType, Texture> powerUpTextures;
 
@@ -124,6 +128,9 @@ public class HudManager implements Disposable {
         boostBar = new BoostBarActor(boostAnimation, BOOST_BAR_WIDTH, BOOST_BAR_HEIGHT);
         boostBar.setVisible(false);
         table.add(boostBar).right().width(BOOST_BAR_WIDTH).height(BOOST_BAR_HEIGHT);
+        table.row();
+        manaBar = new ManaBarActor(MANA_BAR_WIDTH, MANA_BAR_HEIGHT);
+        table.add(manaBar).right().width(MANA_BAR_WIDTH).height(MANA_BAR_HEIGHT);
         table.row();
         table.add(buildPowerUpTable()).right();
 
@@ -212,6 +219,11 @@ public class HudManager implements Disposable {
         label.setText(String.format("[%s] x%02d%s", type.activationLabel(), count, timerText));
     }
 
+    public void setMana(float progress01) {
+        if (manaBar == null) return;
+        manaBar.setProgress(progress01);
+    }
+
     @Override
     public void dispose() {
         stage.dispose();
@@ -220,6 +232,9 @@ public class HudManager implements Disposable {
         emptyHeartTexture.dispose();
         for (Texture texture : powerUpTextures.values()) {
             texture.dispose();
+        }
+        if (manaBar != null) {
+            manaBar.dispose();
         }
     }
 
@@ -258,6 +273,44 @@ public class HudManager implements Disposable {
 
             batch.setColor(getColor().r, getColor().g, getColor().b, getColor().a * parentAlpha);
             batch.draw(clippedFrame, getX(), getY(), getWidth() * progress, getHeight());
+        }
+    }
+
+    private static class ManaBarActor extends Actor implements Disposable {
+        private final Texture texture;
+        private float progress;
+
+        private ManaBarActor(float width, float height) {
+            Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+            pixmap.setColor(Color.WHITE);
+            pixmap.fill();
+            texture = new Texture(pixmap);
+            pixmap.dispose();
+            progress = 1f;
+            setSize(width, height);
+        }
+
+        private void setProgress(float progress01) {
+            progress = MathUtils.clamp(progress01, 0f, 1f);
+        }
+
+        @Override
+        public void draw(Batch batch, float parentAlpha) {
+            float x = getX();
+            float y = getY();
+            float width = getWidth();
+            float height = getHeight();
+
+            batch.setColor(0.05f, 0.08f, 0.16f, parentAlpha);
+            batch.draw(texture, x, y, width, height);
+            batch.setColor(0.25f, 0.62f, 1f, parentAlpha);
+            batch.draw(texture, x + 1f, y + 1f, Math.max(0f, (width - 2f) * progress), height - 2f);
+            batch.setColor(Color.WHITE);
+        }
+
+        @Override
+        public void dispose() {
+            texture.dispose();
         }
     }
 

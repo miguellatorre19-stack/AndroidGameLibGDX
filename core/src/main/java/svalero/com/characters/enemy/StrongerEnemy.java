@@ -11,8 +11,12 @@ import svalero.com.managers.SpriteManager;
 public class StrongerEnemy extends Enemy {
     private static final float PARALYZE_COOLDOWN_SEC = 20f;
     private static final float PARALYZE_DURATION_SEC = 1f;
+    private static final float AGGRO_SLOW_DURATION_SEC = 2.25f;
+    private static final float AGGRO_SLOW_COOLDOWN_SEC = 8f;
 
     private float paralyzeCooldown;
+    private float aggroSlowCooldown;
+    private Player trackedPlayer;
 
     public StrongerEnemy(
         Vector2 position,
@@ -57,16 +61,31 @@ public class StrongerEnemy extends Enemy {
             deathAnimation
         );
         paralyzeCooldown = 0f;
+        aggroSlowCooldown = 0f;
     }
 
     @Override
     public void updateBehavior(Player player, float dt, LevelManager levelManager, Array<Enemy> nearbyEnemies) {
+        trackedPlayer = player;
         if (paralyzeCooldown > 0f) {
             paralyzeCooldown -= dt;
+        }
+        if (aggroSlowCooldown > 0f) {
+            aggroSlowCooldown -= dt;
         }
 
         super.updateBehavior(player, dt, levelManager, nearbyEnemies);
         tryParalyze(player);
+    }
+
+    @Override
+    public void onEnterChaseState() {
+        super.onEnterChaseState();
+        if (trackedPlayer == null || trackedPlayer.isDead()) return;
+        if (aggroSlowCooldown > 0f) return;
+
+        trackedPlayer.slow(AGGRO_SLOW_DURATION_SEC);
+        aggroSlowCooldown = AGGRO_SLOW_COOLDOWN_SEC;
     }
 
     private void tryParalyze(Player player) {
