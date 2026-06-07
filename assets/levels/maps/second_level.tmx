@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="24" height="16" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="59">
+ <tileset firstgid="1" source="tilesets/Level1_DungeonEnvironment.tsx"/>
+ <tileset firstgid="1025" source="tilesets/Dungeon_Tileset.tsx"/>
+ <layer id="1" name="floor" width="24" height="16">
+  <data encoding="csv">
+1034,1034,1034,1034,1034,1034,1034,1034,1034,1034,1034,1034,1034,1034,1034,0,0,0,1034,1034,1034,1034,1034,1034,
+1032,1033,1034,1044,1044,1044,1044,1044,1044,1044,1044,1044,1044,1044,1044,0,0,0,1033,1034,1044,1044,1044,1044,
+1031,1031,1031,1031,1031,1031,1031,1032,1033,1031,1032,1033,1034,1034,1034,1054,1031,1032,1033,1034,1034,1054,1054,1054,
+1041,1041,1041,1041,1041,1041,1041,1031,1031,1031,1032,1033,1034,1044,1044,1034,1041,1031,1032,1033,1034,1034,1034,1034,
+1051,1051,1051,1051,1051,1051,1051,1041,1031,1032,1033,1034,1044,1054,1054,1044,1034,1031,1032,1033,1034,1044,1044,1044,
+882,882,882,1051,1051,1051,1051,1051,1031,1032,1033,1034,1054,1053,1054,1054,1044,1034,1032,1033,1034,1034,1054,0,
+882,882,882,882,882,882,1051,1031,1031,1043,1031,1044,1051,1051,1052,1053,1054,1044,1034,1032,1033,1034,1034,0,
+882,882,882,882,882,882,882,0,0,1043,1034,1054,565,1031,1051,1052,1053,1054,1044,1034,1033,1034,1044,0,
+783,784,882,882,882,882,882,0,0,1043,1034,565,882,1031,1031,1051,1052,1053,1054,1044,1034,1034,1054,0,
+0,882,882,882,882,882,784,1031,1032,1043,1034,565,565,1043,1041,1041,1051,1052,1053,1054,1044,1034,1054,0,
+0,783,882,882,784,882,882,1041,1042,1043,1044,882,882,1043,1051,1051,1051,1051,1052,1053,1054,1044,1034,0,
+882,882,882,882,882,882,882,0,0,1043,1054,882,565,1043,565,565,1031,1032,1051,1052,1053,1054,1034,0,
+882,882,882,882,882,882,882,0,0,1043,565,565,882,1043,565,565,1031,1031,1051,1052,1053,1054,1044,0,
+882,882,882,882,882,882,565,882,565,1043,565,882,565,1043,565,565,1041,1041,1051,1051,1052,1053,1054,0,
+565,565,565,565,565,565,565,565,565,1043,565,565,565,565,565,565,1051,0,0,0,0,0,0,0,
+565,565,565,565,565,565,565,0,0,1043,565,565,565,565,565,565,565,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="2" name="walls" width="24" height="16">
+  <data encoding="csv">
+1025,1026,1027,1029,1030,0,0,0,0,1025,1026,1027,1028,1029,1030,0,0,0,1025,1027,1027,1028,1029,1030,
+1035,0,0,0,0,0,0,0,0,1035,0,0,0,0,1040,0,0,0,1035,0,0,0,0,1040,
+1065,1066,1069,1069,1070,0,0,0,0,1045,0,0,0,0,1050,0,0,0,1045,0,0,0,0,1050,
+0,0,0,0,0,0,0,0,0,1055,0,0,0,0,1060,0,0,0,1055,0,0,0,0,1060,
+1025,1026,1027,1028,1029,1030,0,0,0,1065,1066,0,0,1069,1070,0,0,0,1065,1080,0,0,1079,1070,
+1035,0,0,0,0,1040,0,0,0,0,0,0,0,0,0,0,0,0,0,1035,0,0,1040,0,
+1045,0,0,0,0,1050,0,0,0,0,0,0,0,0,0,0,0,0,0,1045,0,0,1050,0,
+1055,0,0,0,0,1060,0,440,440,0,0,0,0,0,1026,1027,1050,0,0,1055,0,0,1060,0,
+1065,1080,0,0,1079,1070,0,440,440,0,0,0,0,0,0,0,1060,0,0,1035,0,0,1040,0,
+0,1035,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1069,1068,1067,1068,0,0,1050,0,
+0,1045,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1040,0,
+1025,1026,0,0,1029,1030,0,440,440,0,0,0,0,0,0,0,0,0,0,0,0,0,1050,0,
+1035,0,0,0,0,1040,0,440,440,0,0,0,0,0,0,0,0,0,0,0,0,0,1060,0,
+0,0,0,0,0,1050,0,0,0,0,0,0,0,0,0,0,1079,1068,1068,1069,1068,1069,1070,0,
+0,0,0,0,0,1060,0,0,0,0,0,0,0,0,0,0,1040,0,0,0,0,0,0,0,
+1065,1066,1067,1068,1069,1070,0,440,440,0,0,0,0,0,1067,1068,1070,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="3" name="elements" width="24" height="16">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,1102,0,0,0,0,0,0,0,0,0,0,1099,1099,1099,1099,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,1093,0,0,0,0,0,0,0,0,0,0,0,1064,0,0,0,
+0,0,0,0,0,0,0,0,3758097486,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,1117,1117,0,0,0,0,0,0,1115,0,0,1115,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,1120,0,0,0,0,0,1117,0,0,1084,0,0,0,0,0,
+0,0,0,1090,0,0,0,0,0,1120,0,0,0,0,0,0,0,1084,1084,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,1093,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,1084,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,1090,0,0,0,0,0,1120,0,0,1084,0,1102,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,1120,0,0,0,0,1102,0,0,0,0,0,0,1090,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,1120,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup id="4" name="collisions">
+  <object id="2" type="solid" x="16" y="64">
+   <properties>
+    <property name="id" value="wall"/>
+   </properties>
+   <polygon points="0,0 64,0 80,0 80,80 48,80 48,64 64,64 64,16 0,16 0,64 16,64 16,128 0,128 0,144 -16,144 -16,112 0,112 0,80 -16,80 -16,0"/>
+  </object>
+  <object id="3" type="solid" x="144" y="0">
+   <properties>
+    <property name="id" value="wall"/>
+   </properties>
+   <polygon points="0,0 0,80 32,80 32,64 16,64 16,16 80,16 80,64 64,64 64,80 96,80 96,0"/>
+  </object>
+  <object id="5" type="solid" x="288" y="0">
+   <properties>
+    <property name="id" value="wall"/>
+   </properties>
+   <polygon points="0,0 96,0 96,80 80,80 80,224 -16,224 -16,256 -64,256 -64,240 -32,240 -32,208 64,208 64,64 80,64 80,16 16,16 16,64 32,64 32,160 -32,160 -32,128 -64,128 -64,112 -16,112 -16,144 16,144 16,80 0,80 0,0"/>
+  </object>
+  <object id="6" x="0" y="240">
+   <properties>
+    <property name="id" value="wall"/>
+   </properties>
+   <polygon points="0,0 80,0 80,-48 64,-48 64,-64 96,-64 96,16 0,16"/>
+  </object>
+  <object id="10" type="solid" x="112" y="112">
+   <properties>
+    <property name="id" value="wall"/>
+   </properties>
+   <polygon points="0,0 48,0 48,32 0,32 0,0"/>
+  </object>
+  <object id="11" type="solid" x="112" y="176">
+   <properties>
+    <property name="id" value="wall"/>
+   </properties>
+   <polygon points="0,0 48,0 48,32 0,32"/>
+  </object>
+  <object id="12" type="solid" x="112" y="240">
+   <properties>
+    <property name="id" value="wall"/>
+   </properties>
+   <polygon points="0,0 48,0 48,16 0,16 0,0"/>
+  </object>
+  <object id="13" type="solid" x="80" y="48">
+   <properties>
+    <property name="id" value="wall"/>
+   </properties>
+   <polygon points="0,0 -80,0 -80,-48 0,-48 0,-32 -16,-32 -64,-32 -64,-16 0,-16"/>
+  </object>
+  <object id="30" type="solid" x="384" y="0">
+   <polygon points="0,0 0,-16 -400,-16 -400,272 16,272 16,0 0,0 0,256 -384,256 -384,0"/>
+  </object>
+ </objectgroup>
+ <objectgroup id="8" name="doors">
+  <object id="34" template="blueprints/door.tx" type="door" x="64" y="144" width="16" height="32">
+   <properties>
+    <property name="id" value="door_lateral_01"/>
+    <property name="lateral" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="35" template="blueprints/door.tx" type="door" x="176" y="64"/>
+  <object id="36" template="blueprints/door.tx" type="door" x="320" y="64"/>
+ </objectgroup>
+ <objectgroup id="7" name="triggers">
+  <object id="50" type="exit" x="320" y="32" width="16" height="16">
+   <properties>
+    <property name="final" type="bool" value="true"/>
+    <property name="targetLevel" value="next"/>
+   </properties>
+  </object>
+  <object id="53" type="chest" x="16" y="16" width="16" height="16">
+   <properties>
+    <property name="isLooted" type="bool" value="false"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup id="9" name="spawns">
+  <object id="38" type="player_spawn" x="0" y="208" width="16" height="16">
+   <properties>
+    <property name="id" value="player_start"/>
+   </properties>
+  </object>
+  <object id="40" type="enemy" x="192" y="32" width="16" height="16">
+   <properties>
+    <property name="enemyType" value="skeleton"/>
+    <property name="lives" type="int" value="3"/>
+   </properties>
+  </object>
+  <object id="41" type="enemy" x="112" y="48" width="16" height="16">
+   <properties>
+    <property name="enemyType" value="skeleton"/>
+    <property name="lives" type="int" value="3"/>
+   </properties>
+  </object>
+  <object id="43" type="enemy" x="256" y="176" width="16" height="16">
+   <properties>
+    <property name="enemyType" value="vampire"/>
+    <property name="lives" type="int" value="5"/>
+   </properties>
+  </object>
+  <object id="45" type="item" x="48" y="96">
+   <properties>
+    <property name="itemType" value="coin"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="46" type="item" x="64" y="96">
+   <properties>
+    <property name="itemType" value="coin"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="47" type="item" x="64" y="112">
+   <properties>
+    <property name="itemType" value="coin"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="48" type="item" x="48" y="112">
+   <properties>
+    <property name="itemType" value="coin"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="51" type="npc" x="48" y="208" width="16" height="16">
+   <properties>
+    <property name="messageId" value="intro_03"/>
+    <property name="npcType" value="skull"/>
+   </properties>
+  </object>
+  <object id="52" type="item" x="16" y="96" width="16" height="16">
+   <properties>
+    <property name="itemType" value="key"/>
+   </properties>
+  </object>
+  <object id="56" type="item" x="96" y="96">
+   <properties>
+    <property name="itemType" value="powerup"/>
+    <property name="powerUpType" value="speed"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="57" type="item" x="240" y="144">
+   <properties>
+    <property name="itemType" value="powerup"/>
+    <property name="powerUpType" value="shield"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="58" type="item" x="304" y="96">
+   <properties>
+    <property name="itemType" value="powerup"/>
+    <property name="powerUpType" value="master_key"/>
+   </properties>
+   <point/>
+  </object>
+ </objectgroup>
+</map>
