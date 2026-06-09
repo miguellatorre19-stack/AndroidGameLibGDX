@@ -20,6 +20,7 @@ import svalero.com.managers.ResourceManager;
 import svalero.com.utils.Constants;
 
 public class ConfigScreen implements Screen {
+    private static final String SHOW_HUD_PREF = "showHud";
 
     private final KeyFinder game;
     private Stage stage;
@@ -127,10 +128,12 @@ public class ConfigScreen implements Screen {
         });
 
         VisCheckBox displayDataButton = new VisCheckBox("Show HUD");
+        displayDataButton.setChecked(prefs.getBoolean(SHOW_HUD_PREF, true));
         displayDataButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                int FPS = Gdx.graphics.getFramesPerSecond();
+                prefs.putBoolean(SHOW_HUD_PREF, displayDataButton.isChecked());
+                prefs.flush();
             }
         });
 

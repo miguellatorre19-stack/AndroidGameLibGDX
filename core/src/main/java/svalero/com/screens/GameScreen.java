@@ -32,6 +32,8 @@ import static svalero.com.utils.Constants.CAMERA_WIDTH;
 
 public class GameScreen implements Screen {
     private static final String ATLAS_ID = ResourceManager.GENERAL_ATLAS_ID;
+    private static final String CONFIG_PREFS = "keyfinder-config";
+    private static final String SHOW_HUD_PREF = "showHud";
 
     private final KeyFinder game;
 
@@ -47,6 +49,8 @@ public class GameScreen implements Screen {
     private AudioManager audioManager;
     private HudManager hudManager;
     private PopupMessageManager popupMessageManager;
+    private Preferences configPrefs;
+    private boolean hudVisible;
 
     public GameScreen(final KeyFinder game) {
         this.game = game;
@@ -57,6 +61,7 @@ public class GameScreen implements Screen {
         ResourceManager.loadAllResources();
         ResourceManager.finishLoadingResources();
         applyAudioMixDefaults();
+        loadConfigPreferences();
 
         initManagers();
         createPlayer();
@@ -69,6 +74,7 @@ public class GameScreen implements Screen {
         hudManager = new HudManager(renderManager.batch);
         popupMessageManager = new PopupMessageManager(hudManager.stage);
         cameraManager.innit();
+        hudVisible = configPrefs.getBoolean(SHOW_HUD_PREF, true);
 
         viewport = new FitViewport(CAMERA_WIDTH, CAMERA_HEIGHT, cameraManager.camera);
         viewport.apply(true);
@@ -77,7 +83,14 @@ public class GameScreen implements Screen {
         hudManager.setLives(player.getLives());
         hudManager.setKeys(player.getKeysInInventory());
         hudManager.setCoins(player.getCoinsInInventory());
+        hudManager.setBoost(player.hasBoost(), player.getBoostProgress01());
         hudManager.setMana(player.getManaProgress01());
+        hudManager.setStatusEffects(
+            player.isStunned(),
+            player.getStunTimeRemainingSec(),
+            player.isSlowed(),
+            player.getSlowTimeRemainingSec()
+        );
         updatePowerUpHud();
 
         audioManager.loadMusic("level_music", "audio/music/xDeviruchi - Mysterious Dungeon.wav");
@@ -93,9 +106,14 @@ public class GameScreen implements Screen {
         prefs.flush();
     }
 
+    private void loadConfigPreferences() {
+        configPrefs = Gdx.app.getPreferences(CONFIG_PREFS);
+    }
+
     @Override
     public void render(float delta) {
         togglePause();
+        toggleHud();
         popupMessageManager.update(delta);
         boolean popupVisible = popupMessageManager.isVisible();
 
@@ -109,8 +127,13 @@ public class GameScreen implements Screen {
         draw();
         drawPauseOverlay(delta);
         handlePauseOverlayActions();
-        renderManager.batch.setProjectionMatrix(hudManager.stage.getCamera().combined);
-        hudManager.stage.draw();
+        if (game.getScreen() != this) {
+            return;
+        }
+        if (hudVisible || popupMessageManager.isVisible()) {
+            renderManager.batch.setProjectionMatrix(hudManager.stage.getCamera().combined);
+            hudManager.stage.draw();
+        }
     }
 
     private void draw() {
@@ -135,7 +158,12 @@ public class GameScreen implements Screen {
             if (levelManager.goToNextLevel()) {
                 loadLevelContent();
             } else {
-                game.setScreen(new MainMenuScreen(game));
+                game.setScreen(new VictoryScreen(
+                    game,
+                    player.getCoinsInInventory(),
+                    player.getKeysInInventory(),
+                    player.getLives()
+                ));
                 dispose();
                 return;
             }
@@ -145,7 +173,14 @@ public class GameScreen implements Screen {
         hudManager.setLives(player.getLives());
         hudManager.setKeys(player.getKeysInInventory());
         hudManager.setCoins(player.getCoinsInInventory());
+        hudManager.setBoost(player.hasBoost(), player.getBoostProgress01());
         hudManager.setMana(player.getManaProgress01());
+        hudManager.setStatusEffects(
+            player.isStunned(),
+            player.getStunTimeRemainingSec(),
+            player.isSlowed(),
+            player.getSlowTimeRemainingSec()
+        );
         updatePowerUpHud();
         handleNeutralNpcPopupFlow();
     }
@@ -167,6 +202,15 @@ public class GameScreen implements Screen {
             } else {
                 resume();
             }
+        }
+    }
+
+    private void toggleHud() {
+        if (!Gdx.input.isKeyJustPressed(Input.Keys.U)) return;
+        hudVisible = !hudVisible;
+        if (configPrefs != null) {
+            configPrefs.putBoolean(SHOW_HUD_PREF, hudVisible);
+            configPrefs.flush();
         }
     }
 
@@ -194,12 +238,13 @@ public class GameScreen implements Screen {
             case TOGGLE_OPTIONS -> {
                 audioManager.playSfx("interface1");
                 pauseOverlay.pressOptions();
+                game.setScreen(new MainMenuScreen(game));
+                dispose();
             }
             case QUIT_TO_MENU -> {
                 audioManager.playSfx("interface1");
                 pauseOverlay.pressQuit();
-                game.setScreen(new MainMenuScreen(game));
-                dispose();
+                Gdx.app.exit();
             }
             case TOGGLE_SOUND -> {
                 pauseOverlay.pressSound();

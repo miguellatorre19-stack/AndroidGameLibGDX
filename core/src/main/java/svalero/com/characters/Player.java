@@ -285,6 +285,14 @@ public class Player extends Character implements Disposable {
         return slowTimeRemainingSec > 0f;
     }
 
+    public float getStunTimeRemainingSec() {
+        return stunTimeRemainingSec;
+    }
+
+    public float getSlowTimeRemainingSec() {
+        return slowTimeRemainingSec;
+    }
+
     public float getMoveSpeedPxPerSec() {
         if (isStunned()) return 0f;
         float speed = PlayerSpeed_PxPerSec;

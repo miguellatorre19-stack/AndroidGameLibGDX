@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.math.MathUtils;
@@ -27,18 +28,25 @@ import static svalero.com.utils.Constants.SCREEN_WIDTH;
 
 public class HudManager implements Disposable {
     private static final int MAX_LIVES = 3;
-    private static final int HEART_SIZE_PX = 32;
-    private static final float HEART_SPACING = 8f;
-    private static final float HUD_PADDING_TOP = 20f;
-    private static final float HUD_PADDING_RIGHT = 22f;
-    private static final float HUD_ROW_SPACING = 10f;
-    private static final float HUD_MIN_WIDTH = 220f;
-    private static final float FONT_SCALE = 1.35f;
-    private static final float BOOST_BAR_WIDTH = 170f;
-    private static final float BOOST_BAR_HEIGHT = 16f;
-    private static final float MANA_BAR_WIDTH = 170f;
-    private static final float MANA_BAR_HEIGHT = 12f;
-    private static final float POWER_UP_ICON_SIZE = 24f;
+    private static final int HEART_SIZE_PX = 38;
+    private static final float HEART_SPACING = 10f;
+    private static final float HUD_PADDING_TOP = 18f;
+    private static final float HUD_PADDING_RIGHT = 18f;
+    private static final float HUD_PANEL_WIDTH = 348f;
+    private static final float HUD_SECTION_SPACING = 12f;
+    private static final float HUD_PANEL_PADDING = 16f;
+    private static final float HUD_CARD_PADDING = 10f;
+    private static final float FONT_SCALE = 1.10f;
+    private static final float SCORE_SCALE = 1.72f;
+    private static final float VALUE_SCALE = 1.18f;
+    private static final float CAPTION_SCALE = 0.76f;
+    private static final float STATUS_SCALE = 0.94f;
+    private static final float BOOST_BAR_WIDTH = 282f;
+    private static final float BOOST_BAR_HEIGHT = 20f;
+    private static final float MANA_BAR_WIDTH = 282f;
+    private static final float MANA_BAR_HEIGHT = 18f;
+    private static final float POWER_UP_ICON_SIZE = 28f;
+    private static final float STAT_CARD_WIDTH = 150f;
 
 
     public Stage stage;
@@ -55,13 +63,20 @@ public class HudManager implements Disposable {
     private static Label scoreLabel;
     private Label keyLabel;
     private Label coinLabel;
+    private Label statusLabel;
+    private Table statusTable;
     private Table heartsTable;
     private Texture fullHeartTexture;
     private Texture emptyHeartTexture;
+    private Texture uiPixelTexture;
     private TextureRegion fullHeartRegion;
     private TextureRegion emptyHeartRegion;
     private BitmapFont hudFont;
-    private Texture coinSymbol;
+    private Drawable panelBackground;
+    private Drawable cardBackground;
+    private Drawable statusReadyBackground;
+    private Drawable statusSlowBackground;
+    private Drawable statusStunBackground;
     private BoostBarActor boostBar;
     private ManaBarActor manaBar;
     private final EnumMap<PowerUpType, Label> powerUpLabels;
@@ -94,52 +109,128 @@ public class HudManager implements Disposable {
         stage = new Stage(viewport, sb);
         fullHeartTexture = new Texture("hud/Life/Heart.png");
         emptyHeartTexture = new Texture("hud/Life/Heart1.png");
+        uiPixelTexture = createSolidTexture();
         powerUpLabels = new EnumMap<>(PowerUpType.class);
         powerUpTextures = new EnumMap<>(PowerUpType.class);
         fullHeartRegion = new TextureRegion(fullHeartTexture);
         emptyHeartRegion = new TextureRegion(emptyHeartTexture);
         hudFont = new BitmapFont();
         hudFont.getData().setScale(FONT_SCALE);
+        panelBackground = createTintedDrawable("091626D8");
+        cardBackground = createTintedDrawable("10263BCF");
+        statusReadyBackground = createTintedDrawable("17344ECF");
+        statusSlowBackground = createTintedDrawable("5A4216D8");
+        statusStunBackground = createTintedDrawable("5E162CD8");
 
-        scoreLabel =new Label(String.format("%06d", score), new Label.LabelStyle(hudFont, Color.valueOf("FFD166")));
-        keyLabel = new Label(String.format("KEY %02d", key), new Label.LabelStyle(hudFont, Color.valueOf("7FDBFF")));
-        coinLabel = new Label(String.format("COINS X %02d", coins), new Label.LabelStyle(hudFont, Color.valueOf("7FDBFF")));
+        scoreLabel = createLabel(String.format("%06d", score), "FFD166", SCORE_SCALE);
+        keyLabel = createLabel(String.format("%02d", key), "F5FBFF", VALUE_SCALE);
+        coinLabel = createLabel(String.format("%02d", coins), "F5FBFF", VALUE_SCALE);
         heartsTable = new Table();
-        heartsTable.right();
+        heartsTable.center();
 
-        Table table = new Table();
-        table.top().right();
-        table.padTop(HUD_PADDING_TOP).padRight(HUD_PADDING_RIGHT);
-        table.defaults().right().padBottom(HUD_ROW_SPACING).minWidth(HUD_MIN_WIDTH);
-        table.setFillParent(true);
-        table.add(scoreLabel).right();
-        table.row();
-        table.add(keyLabel).right();
-        table.add(coinLabel).left();
-        table.row();
-        table.add(heartsTable).right();
-        table.row();
+        Table root = new Table();
+        root.top().right();
+        root.padTop(HUD_PADDING_TOP).padRight(HUD_PADDING_RIGHT);
+        root.setFillParent(true);
+
+        Table panel = new Table();
+        panel.setBackground(panelBackground);
+        panel.pad(HUD_PANEL_PADDING);
+        panel.defaults().growX().padBottom(HUD_SECTION_SPACING);
+
+        panel.add(buildHeaderBlock());
+        panel.row();
+        panel.add(buildResourcesBlock());
+        panel.row();
+        panel.add(buildVitalityBlock());
+        panel.row();
+        panel.add(buildStatusBlock());
+        panel.row();
         Animation<TextureRegion> boostAnimation = ResourceManager.buildIndexedAnimation(
             ResourceManager.HUD_INTERACTIONS_ID,
             "green",
             0.10f,
             Animation.PlayMode.LOOP
         );
-        boostBar = new BoostBarActor(boostAnimation, BOOST_BAR_WIDTH, BOOST_BAR_HEIGHT);
-        boostBar.setVisible(false);
-        table.add(boostBar).right().width(BOOST_BAR_WIDTH).height(BOOST_BAR_HEIGHT);
-        table.row();
-        manaBar = new ManaBarActor(MANA_BAR_WIDTH, MANA_BAR_HEIGHT);
-        table.add(manaBar).right().width(MANA_BAR_WIDTH).height(MANA_BAR_HEIGHT);
-        table.row();
-        table.add(buildPowerUpTable()).right();
+        boostBar = new BoostBarActor(boostAnimation, uiPixelTexture, BOOST_BAR_WIDTH, BOOST_BAR_HEIGHT);
+        panel.add(buildBarBlock("BLESSING", "Speed burst", "6EEB83", boostBar));
+        panel.row();
+        manaBar = new ManaBarActor(uiPixelTexture, MANA_BAR_WIDTH, MANA_BAR_HEIGHT);
+        panel.add(buildBarBlock("MANA", "Attack resource", "67C6FF", manaBar));
+        panel.row();
+        panel.add(buildPowerUpBlock()).padBottom(0f);
 
-        stage.addActor(table);
+        root.add(panel).width(HUD_PANEL_WIDTH).top().right();
+        stage.addActor(root);
+        setStatusEffects(false, 0f, false, 0f);
+    }
+
+    private Table buildHeaderBlock() {
+        Table header = new Table();
+        header.defaults().left();
+        header.add(createLabel("PRIEST STATUS", "8FD3FF", 0.88f)).left();
+        header.row();
+        header.add(scoreLabel).left().padTop(2f);
+        return header;
+    }
+
+    private Table buildResourcesBlock() {
+        Table resources = new Table();
+        resources.defaults().padRight(8f);
+        resources.add(buildStatCard("KEYS", "Keys carried", "7FDBFF", keyLabel)).width(STAT_CARD_WIDTH).fillX();
+        resources.add(buildStatCard("COINS", "Current stash", "FFD166", coinLabel)).width(STAT_CARD_WIDTH).fillX().padRight(0f);
+        return resources;
+    }
+
+    private Table buildVitalityBlock() {
+        Table vitality = new Table();
+        vitality.setBackground(cardBackground);
+        vitality.pad(HUD_CARD_PADDING);
+        vitality.defaults().left();
+        vitality.add(createLabel("VITAL", "FF8FA3", CAPTION_SCALE)).left();
+        vitality.row();
+        vitality.add(heartsTable).center().padTop(6f);
+        return vitality;
+    }
+
+    private Table buildStatusBlock() {
+        statusTable = new Table();
+        statusTable.pad(HUD_CARD_PADDING);
+        statusTable.defaults().left();
+        statusTable.add(createLabel("STATUS", "8FD3FF", CAPTION_SCALE)).left();
+        statusTable.row();
+        statusLabel = createLabel("", "D7E8FF", STATUS_SCALE);
+        statusTable.add(statusLabel).left().padTop(4f);
+        return statusTable;
+    }
+
+    private Table buildBarBlock(String title, String subtitle, String accentHex, Actor barActor) {
+        Table block = new Table();
+        block.setBackground(cardBackground);
+        block.pad(HUD_CARD_PADDING);
+        block.defaults().left();
+        block.add(createLabel(title, accentHex, CAPTION_SCALE)).left();
+        block.row();
+        block.add(createLabel(subtitle, "8CA8C8", 0.70f)).left().padTop(2f).padBottom(8f);
+        block.row();
+        block.add(barActor).width(BOOST_BAR_WIDTH).height(barActor.getHeight()).left();
+        return block;
+    }
+
+    private Table buildPowerUpBlock() {
+        Table powerUpBlock = new Table();
+        powerUpBlock.setBackground(cardBackground);
+        powerUpBlock.pad(HUD_CARD_PADDING);
+        powerUpBlock.defaults().left();
+        powerUpBlock.add(createLabel("RELICS", "B8F2E6", CAPTION_SCALE)).left();
+        powerUpBlock.row();
+        powerUpBlock.add(buildPowerUpTable()).left().padTop(6f);
+        return powerUpBlock;
     }
 
     private Table buildPowerUpTable() {
         Table powerUpTable = new Table();
-        powerUpTable.defaults().left().padBottom(4f);
+        powerUpTable.defaults().left().padBottom(6f);
 
         addPowerUpRow(powerUpTable, PowerUpType.SPEED, "hud/Green_Potion.png");
         powerUpTable.row();
@@ -154,15 +245,14 @@ public class HudManager implements Disposable {
         texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         powerUpTextures.put(type, texture);
 
-        Label label = new Label("", new Label.LabelStyle(hudFont, Color.valueOf("EAF2FF")));
-        label.setFontScale(0.8f);
+        Label label = createLabel("", "EAF2FF", 0.82f);
         powerUpLabels.put(type, label);
         setPowerUp(type, 0, 0f);
 
         table.add(new Image(new TextureRegionDrawable(new TextureRegion(texture))))
             .size(POWER_UP_ICON_SIZE, POWER_UP_ICON_SIZE)
-            .padRight(6f);
-        table.add(label).minWidth(120f);
+            .padRight(8f);
+        table.add(label).minWidth(220f);
     }
 
     public void update(float dt){
@@ -191,37 +281,61 @@ public class HudManager implements Disposable {
         heartsTable.clearChildren();
         for (int i = 0; i < MAX_LIVES; i++) {
             TextureRegion region = i < lives ? fullHeartRegion : emptyHeartRegion;
-            heartsTable.add(new Image(new TextureRegionDrawable(region))).size(HEART_SIZE_PX, HEART_SIZE_PX).padRight(HEART_SPACING);
+            heartsTable.add(new Image(new TextureRegionDrawable(region)))
+                .size(HEART_SIZE_PX, HEART_SIZE_PX)
+                .padRight(i == MAX_LIVES - 1 ? 0f : HEART_SPACING);
         }
     }
 
     public void setCoins(int coins){
         this.coins = coins;
-        coinLabel.setText(String.format("COINS X %02d", this.coins));
+        coinLabel.setText(String.format("%02d", this.coins));
     }
 
     public void setKeys(int keys){
         this.key = keys;
-        keyLabel.setText(String.format("KEY %02d", this.key));
+        keyLabel.setText(String.format("%02d", this.key));
     }
 
     public void setBoost(boolean boosted, float progress01) {
         if (boostBar == null) return;
         boostBar.setProgress(progress01);
-        boostBar.setVisible(boosted && progress01 > 0f);
+        boostBar.setActive(boosted && progress01 > 0f);
     }
 
     public void setPowerUp(PowerUpType type, int count, float remainingSec) {
         Label label = powerUpLabels.get(type);
         if (label == null) return;
 
-        String timerText = remainingSec > 0f ? String.format(" %.1fs", remainingSec) : "";
-        label.setText(String.format("[%s] x%02d%s", type.activationLabel(), count, timerText));
+        String timerText = remainingSec > 0f ? String.format("  %.1fs", remainingSec) : "";
+        label.setText(String.format("%s  x%02d%s", powerUpTitle(type), count, timerText));
     }
 
     public void setMana(float progress01) {
         if (manaBar == null) return;
         manaBar.setProgress(progress01);
+    }
+
+    public void setStatusEffects(boolean stunned, float stunRemainingSec, boolean slowed, float slowRemainingSec) {
+        if (statusLabel == null || statusTable == null) return;
+
+        if (stunned && stunRemainingSec > 0f) {
+            statusLabel.setText(String.format("PARALYZED %.1fs", stunRemainingSec));
+            statusLabel.setColor(Color.valueOf("FFF3F5"));
+            statusTable.setBackground(statusStunBackground);
+            return;
+        }
+
+        if (slowed && slowRemainingSec > 0f) {
+            statusLabel.setText(String.format("SLOWED %.1fs", slowRemainingSec));
+            statusLabel.setColor(Color.valueOf("FFF5D8"));
+            statusTable.setBackground(statusSlowBackground);
+            return;
+        }
+
+        statusLabel.setText("CLEAR");
+        statusLabel.setColor(Color.valueOf("D7E8FF"));
+        statusTable.setBackground(statusReadyBackground);
     }
 
     @Override
@@ -230,32 +344,38 @@ public class HudManager implements Disposable {
         hudFont.dispose();
         fullHeartTexture.dispose();
         emptyHeartTexture.dispose();
+        uiPixelTexture.dispose();
         for (Texture texture : powerUpTextures.values()) {
             texture.dispose();
-        }
-        if (manaBar != null) {
-            manaBar.dispose();
         }
     }
 
     private static class BoostBarActor extends Actor {
         private final Animation<TextureRegion> animation;
+        private final Texture uiPixelTexture;
         private final TextureRegion clippedFrame;
         private float stateTime;
         private float progress;
+        private boolean active;
 
-        private BoostBarActor(Animation<TextureRegion> animation, float width, float height) {
+        private BoostBarActor(Animation<TextureRegion> animation, Texture uiPixelTexture, float width, float height) {
             this.animation = animation;
+            this.uiPixelTexture = uiPixelTexture;
             this.clippedFrame = new TextureRegion();
             this.stateTime = 0f;
-            this.progress = 1f;
+            this.progress = 0f;
+            this.active = false;
             setSize(width, height);
         }
 
         private void updateTime(float dt) {
-            if (isVisible()) {
+            if (active) {
                 stateTime += dt;
             }
+        }
+
+        private void setActive(boolean active) {
+            this.active = active;
         }
 
         private void setProgress(float progress01) {
@@ -264,28 +384,43 @@ public class HudManager implements Disposable {
 
         @Override
         public void draw(Batch batch, float parentAlpha) {
-            if (!isVisible() || animation == null || progress <= 0f) return;
+            float x = getX();
+            float y = getY();
+            float width = getWidth();
+            float height = getHeight();
+
+            batch.setColor(0.04f, 0.06f, 0.11f, 0.95f * parentAlpha);
+            batch.draw(uiPixelTexture, x, y, width, height);
+            batch.setColor(0.11f, 0.18f, 0.27f, parentAlpha);
+            batch.draw(uiPixelTexture, x + 2f, y + 2f, width - 4f, height - 4f);
+            if (!active || animation == null || progress <= 0f) {
+                batch.setColor(Color.WHITE);
+                return;
+            }
 
             TextureRegion frame = animation.getKeyFrame(stateTime, true);
+            float innerX = x + 3f;
+            float innerY = y + 3f;
+            float innerWidth = width - 6f;
+            float innerHeight = height - 6f;
             int clippedWidth = Math.max(1, Math.round(frame.getRegionWidth() * progress));
             clippedFrame.setRegion(frame);
             clippedFrame.setRegionWidth(clippedWidth);
 
+            batch.setColor(0.65f, 1f, 0.78f, 0.24f * parentAlpha);
+            batch.draw(uiPixelTexture, innerX, innerY, innerWidth * progress, innerHeight);
             batch.setColor(getColor().r, getColor().g, getColor().b, getColor().a * parentAlpha);
-            batch.draw(clippedFrame, getX(), getY(), getWidth() * progress, getHeight());
+            batch.draw(clippedFrame, innerX, innerY, innerWidth * progress, innerHeight);
+            batch.setColor(Color.WHITE);
         }
     }
 
-    private static class ManaBarActor extends Actor implements Disposable {
-        private final Texture texture;
+    private static class ManaBarActor extends Actor {
+        private final Texture uiPixelTexture;
         private float progress;
 
-        private ManaBarActor(float width, float height) {
-            Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-            pixmap.setColor(Color.WHITE);
-            pixmap.fill();
-            texture = new Texture(pixmap);
-            pixmap.dispose();
+        private ManaBarActor(Texture uiPixelTexture, float width, float height) {
+            this.uiPixelTexture = uiPixelTexture;
             progress = 1f;
             setSize(width, height);
         }
@@ -301,17 +436,57 @@ public class HudManager implements Disposable {
             float width = getWidth();
             float height = getHeight();
 
-            batch.setColor(0.05f, 0.08f, 0.16f, parentAlpha);
-            batch.draw(texture, x, y, width, height);
+            batch.setColor(0.04f, 0.06f, 0.11f, 0.95f * parentAlpha);
+            batch.draw(uiPixelTexture, x, y, width, height);
+            batch.setColor(0.11f, 0.18f, 0.27f, parentAlpha);
+            batch.draw(uiPixelTexture, x + 2f, y + 2f, width - 4f, height - 4f);
             batch.setColor(0.25f, 0.62f, 1f, parentAlpha);
-            batch.draw(texture, x + 1f, y + 1f, Math.max(0f, (width - 2f) * progress), height - 2f);
+            batch.draw(uiPixelTexture, x + 3f, y + 3f, Math.max(0f, (width - 6f) * progress), height - 6f);
+            batch.setColor(0.71f, 0.92f, 1f, 0.22f * parentAlpha);
+            batch.draw(uiPixelTexture, x + 3f, y + height * 0.5f, Math.max(0f, (width - 6f) * progress), (height - 6f) * 0.5f);
             batch.setColor(Color.WHITE);
         }
+    }
 
-        @Override
-        public void dispose() {
-            texture.dispose();
-        }
+    private Label createLabel(String text, String colorHex, float scale) {
+        Label label = new Label(text, new Label.LabelStyle(hudFont, Color.valueOf(colorHex)));
+        label.setFontScale(scale);
+        return label;
+    }
+
+    private Table buildStatCard(String title, String subtitle, String accentHex, Label valueLabel) {
+        Table card = new Table();
+        card.setBackground(cardBackground);
+        card.pad(HUD_CARD_PADDING);
+        card.defaults().left();
+        card.add(createLabel(title, accentHex, CAPTION_SCALE)).left();
+        card.row();
+        card.add(createLabel(subtitle, "8CA8C8", 0.68f)).left().padTop(2f);
+        card.row();
+        card.add(valueLabel).left().padTop(8f);
+        return card;
+    }
+
+    private Texture createSolidTexture() {
+        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pixmap.setColor(Color.WHITE);
+        pixmap.fill();
+        Texture texture = new Texture(pixmap);
+        pixmap.dispose();
+        return texture;
+    }
+
+    private Drawable createTintedDrawable(String colorHex) {
+        return new TextureRegionDrawable(new TextureRegion(uiPixelTexture)).tint(Color.valueOf(colorHex));
+    }
+
+    private String powerUpTitle(PowerUpType type) {
+        if (type == null) return "UNKNOWN";
+        return switch (type) {
+            case SPEED -> "HASTE  [1]";
+            case SHIELD -> "SHIELD [2]";
+            case MASTER_KEY -> "MASTER [3]";
+        };
     }
 
 }

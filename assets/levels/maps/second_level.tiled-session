@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "first_level_tutorial.tmx",
+    "activeFile": "second_level.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -16,9 +16,9 @@
         "first_level_tutorial.tmx": {
             "expandedObjectLayers": [
                 12,
-                11,
+                3,
                 10,
-                3
+                11
             ],
             "scale": 3,
             "selectedLayer": 6,
@@ -30,15 +30,15 @@
         "second_level.tmx": {
             "expandedObjectLayers": [
                 8,
-                4,
                 9,
+                4,
                 7
             ],
             "scale": 2,
-            "selectedLayer": 3,
+            "selectedLayer": 6,
             "viewCenter": {
-                "x": 156.25,
-                "y": -111
+                "x": 191.75,
+                "y": 127.5
             }
         },
         "tilesets/Dungeon_Tileset.tsx": {
@@ -64,8 +64,8 @@
     "project": "second_level.tiled-project",
     "property.type": "bool",
     "recentFiles": [
-        "second_level.tmx",
         "first_level_tutorial.tmx",
+        "second_level.tmx",
         "Dungeon_Tileset.tsx"
     ],
     "tileset.lastUsedFormat": "tsx"
