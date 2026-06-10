@@ -15,24 +15,24 @@
         },
         "first_level_tutorial.tmx": {
             "expandedObjectLayers": [
-                12,
-                3,
+                11,
                 10,
-                11
+                3,
+                12
             ],
             "scale": 3,
             "selectedLayer": 6,
             "viewCenter": {
-                "x": 141.83333333333331,
-                "y": 97.99999999999999
+                "x": 128,
+                "y": 127.83333333333331
             }
         },
         "second_level.tmx": {
             "expandedObjectLayers": [
-                8,
                 9,
-                4,
-                7
+                8,
+                7,
+                4
             ],
             "scale": 2,
             "selectedLayer": 6,

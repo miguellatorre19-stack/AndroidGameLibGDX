@@ -24,7 +24,8 @@ public final class LevelEntityFactory {
     private static final String MESSAGE_INTRO_01 = "Woah! Creo que te has perdido, amigo. De algun modo has acabado en las antiguas catacumbas. "
         + "No lo vas a tener facil para huir. Para poder moverte hasta la salida, tendras que ir abriendo las puertas del laberinto. "
         + "Para ello necesitaras llaves, como esa de ahi. Son de un solo uso, asi que asegurate de como quieres usarlas.";
-    private static final String MESSAGE_INTRO_02 = "Las calaveras flotantes somos efimeras. Una vez que interactues con nosotros, desapareceremos.";
+    private static final String MESSAGE_INTRO_02 = "Tienes diferentes viales de poder, cada uno con un efecto diferente: el verde te hace mover mas rápido, " +
+        "el azul te protege de un gope y el rojo te deja abrir puertas sin llaves";
     private static final String MESSAGE_INTRO_03 = "Este nivel es mas peligroso. Los vampiros pueden paralizarte si te ven.";
 
     private final SpriteManager spriteManager;
